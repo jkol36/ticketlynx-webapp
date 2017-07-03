@@ -1,0 +1,6 @@
+{
+  "name": "Social Stats",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./SocialStats.js"
+}
