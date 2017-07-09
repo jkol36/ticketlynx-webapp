@@ -103,18 +103,23 @@ export default class CodeBank extends Component {
     return (
       <div className='animated fade-in'> 
         <div className='row'> 
-          <div className='col-lg-8'> 
-            <table className='table table-sm table-condensed'> 
-              <thead> 
-                <tr> 
-                  <th> Event Name </th>
-                  <th> Password </th>
-                </tr>
-              </thead>
-              <tbody> 
-                {codeNodes}
-              </tbody>
-            </table>
+          <div className='col-lg-8'>
+            <div className='card'> 
+              <div className='card-block'>
+                <table className='table table-sm table-condensed'> 
+                  <thead> 
+                    <tr> 
+                      <th> Event Name </th>
+                      <th> Password </th>
+                      <th> Remove Code </th>
+                    </tr>
+                  </thead>
+                  <tbody> 
+                    {codeNodes}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
           <div className='col-lg-4'>
             <div style={addNewCodeStyle} className='row'>

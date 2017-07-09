@@ -63,6 +63,7 @@ class OnSaleList extends Component {
       //tableHeaders.push(Object.keys(this.state.onSaleItems.filter(item => item.provider === provider)[0]))
     })
     eliminateDuplicates(tableHeaders)
+
     console.log(tableHeaders)
     let onSaleItems = this.state.onSaleItems
     .sort((a,b) => moment(b.onSaleDate) - moment(a.onSaleDate))
@@ -70,20 +71,16 @@ class OnSaleList extends Component {
     .splice(this.state.startIndex, this.state.endIndex)
     .map((item, index) => {
       return (
-        <tr key={index}> 
+        <tr key={index}>
+            <td> {item['eventName']} 
+              <br></br>
+              <Link to={`/socialData/${item.eventName}`} activeClassName='active' data-for='test' data-tip='View Social Data'>
+                <ReactToolTip id='test'/>
+                <i className='fa fa-info-circle' style={{cursor:'pointer'}}/> 
+              </Link>
+            </td> 
           {Object.keys(item).map(k => {
-            if(k !== 'My Notes' && k !== 'publicSaleUrl' && k !== 'ticketLink' && k !=='provider') {
-              if(k === 'eventName') {
-                return (
-                  <td key={k}> {item[k]} 
-                    <br></br>
-                    <Link to={`/socialData/${item.eventName}`} activeClassName='active' data-for='test' data-tip='View Social Data'>
-                      <ReactToolTip id='test'/>
-                      <i className='fa fa-info-circle' style={{cursor:'pointer'}}/> 
-                    </Link>
-                  </td>
-                )
-              }
+            if(k !== 'My Notes' && k !== 'eventName' && k !== 'publicSaleUrl' && k !== 'ticketLink' && k !=='provider') {
               return (<td key={k}> {item[k]} </td>)
             }
           })}
@@ -103,25 +100,30 @@ class OnSaleList extends Component {
       <div className='animated fadeIn'>
         <div className='row'>
           <div className='col-lg-12'>
-            <table style={onSaleTableStyle} className='table table-sm table-condensed'> 
-              <thead> 
-                <tr>
-                  {tableHeaders.map((k, index) => {
-                    if(k !== 'My Notes' && k !== 'publicSaleUrl' && k !=='ticketLink' && k !=='provider')
-                    return (<th key={index}>{k}</th> )
-                  })}
-                  <th> purchase </th>
-                </tr>
-              </thead>
-              <tbody>
-                {onSaleItems} 
-              </tbody>
-            </table>
-            <ul className='pagination'>
-              <li className='page-item'> 
-                <a className='page-link' onClick={() => this.setState({startIndex: this.state.startIndex+10, endIndex:this.state.endIndex+10})} style={{color:'#20a8d8'}}>Load 10 more</a>
-              </li>
-            </ul>
+            <div className='card'>
+              <div className='card-block'>
+              <table style={onSaleTableStyle} className='table'> 
+                <thead> 
+                  <tr>
+                  <th> Event Name </th>
+                    {tableHeaders.map((k, index) => {
+                      if(k !== 'My Notes' && k !== 'publicSaleUrl' && k !=='ticketLink' && k !== 'eventName' && k !=='provider')
+                      return (<th key={index}>{k}</th> )
+                    })}
+                    <th> purchase </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {onSaleItems} 
+                </tbody>
+              </table>
+              <ul className='pagination'>
+                <li className='page-item'> 
+                  <a className='page-link' onClick={() => this.setState({startIndex: this.state.startIndex+10, endIndex:this.state.endIndex+10})} style={{color:'#20a8d8'}}>Load 10 more</a>
+                </li>
+              </ul>
+            </div>
+            </div>
         </div>
       </div>
     </div>
