@@ -113,7 +113,7 @@ class OnSaleList extends Component {
           <div className='col-lg-12'>
             <div className='card'>
               <div className='card-block'>
-              <input className='form-control' onChange={(e) => this.setState({query:e.target.value})} value={this.state.query}/> 
+              <input placeholder='type something to filter events' className='form-control' onChange={(e) => this.setState({query:e.target.value})} value={this.state.query}/> 
               <table style={onSaleTableStyle} className='table'> 
                 <thead> 
                   <tr>
