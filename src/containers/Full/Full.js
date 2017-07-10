@@ -25,9 +25,14 @@ import Tabs from '../../views/Components/Tabs/'
 import FontAwesome from '../../views/Icons/FontAwesome/'
 import SimpleLineIcons from '../../views/Icons/SimpleLineIcons/'
 
-import { reportRef, onSaleRef } from '../../config'
+import { reportRef, onSaleRef, signalingRef } from '../../config'
 
 class Full extends Component {
+
+  componentDidMount() {
+    //signal scrapers to run
+    signalingRef.push({lastRun: Date.now()})
+  }
 
   render() {
     return (

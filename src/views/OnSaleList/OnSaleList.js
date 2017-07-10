@@ -13,11 +13,13 @@ class OnSaleList extends Component {
       onSaleItems: [],
       count:10,
       year:'2017',
-      'startIndex': 0,
-      'endIndex':10
+      startIndex: 0,
+      endIndex:10,
+      query: ''
     }
     this.fetchOnSaleList = this.fetchOnSaleList.bind(this)
     this.handleClick = this.handleClick.bind(this)
+    this.filterItems = this.filterItems.bind(this)
   }
   componentDidMount() {
     this.fetchOnSaleList()
@@ -47,6 +49,17 @@ class OnSaleList extends Component {
     })
   }
 
+  filterItems() {
+    if (this.state.query.length < 3)
+      return this.state.onSaleItems
+    const regex = new RegExp(this.state.query, 'gi')
+    return this.state.onSaleItems.filter(t =>
+      (t.venue.match(regex)) ||
+      t.eventName.match(regex) ||
+      t.city.match(regex)
+    )
+  }
+
   render() {
     console.log('this.state.startIndex', 'this.state.endIndex', this.state.startIndex, this.state.endIndex)
     const onSaleTableStyle = {
@@ -63,9 +76,7 @@ class OnSaleList extends Component {
       //tableHeaders.push(Object.keys(this.state.onSaleItems.filter(item => item.provider === provider)[0]))
     })
     eliminateDuplicates(tableHeaders)
-
-    console.log(tableHeaders)
-    let onSaleItems = this.state.onSaleItems
+    let onSaleItems = this.filterItems()
     .sort((a,b) => moment(b.onSaleDate) - moment(a.onSaleDate))
     .sort((a, b) => +a.onSaleTime.split(' ')[0].split(':')[0] - +b.onSaleTime.split(' ')[0].split(':')[0])
     .splice(this.state.startIndex, this.state.endIndex)
@@ -102,6 +113,7 @@ class OnSaleList extends Component {
           <div className='col-lg-12'>
             <div className='card'>
               <div className='card-block'>
+              <input className='form-control' onChange={(e) => this.setState({query:e.target.value})} value={this.state.query}/> 
               <table style={onSaleTableStyle} className='table'> 
                 <thead> 
                   <tr>

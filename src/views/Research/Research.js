@@ -40,7 +40,7 @@ export default class Research extends Component {
 
   componentDidMount() {
     albumRef.on('child_added', s => {
-      console.log('yooo', s.key, s.val())
+      console.log('album added', s.key, s.val())
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
         this.setState({
           loading:false,
@@ -49,7 +49,7 @@ export default class Research extends Component {
       }
     })
     albumRef.on('child_changed', s => {
-      console.log('yooo', s.key, s.val())
+      console.log('album changed', s.key, s.val())
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
         this.setState({
           loading:false,
@@ -59,7 +59,6 @@ export default class Research extends Component {
     })
 
     artistRef.on('child_changed', s => {
-      console.log('artist ref', s.key, s.val())
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
         this.setState({
           loading:false,
@@ -68,7 +67,6 @@ export default class Research extends Component {
       }
     })
     artistRef.on('child_added', s => {
-      console.log('artist ref', s.key, s.val())
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
         this.setState({
           loading:false,
@@ -77,7 +75,6 @@ export default class Research extends Component {
       }
     })
     scoresRef.on('child_changed', s => {
-      console.log('scores ref changed', s.key, s.val())
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
         this.setState({
           loading:false,
@@ -86,7 +83,6 @@ export default class Research extends Component {
       }
     })
     scoresRef.on('child_added', s => {
-      console.log('scores ref added', s.key, s.val())
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
         this.setState({
           loading:false,
@@ -95,7 +91,6 @@ export default class Research extends Component {
       }
     })
     topCitiesRef.on('child_added', s => {
-      console.log('top cities added', s.key, s.val())
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
         this.setState({
           loading:false,
@@ -104,7 +99,6 @@ export default class Research extends Component {
       }
     })
     topCitiesRef.on('child_changed', s => {
-      console.log('top cities changed', s.key, s.val())
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
         this.setState({
           loading:false,
@@ -113,7 +107,6 @@ export default class Research extends Component {
       }
     })
     topCountriesRef.on('child_added', s => {
-      console.log('top countries added', s.key, s.val())
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
         this.setState({
           loading:false,
@@ -122,7 +115,6 @@ export default class Research extends Component {
       }
     })
     topCountriesRef.on('child_changed', s => {
-      console.log('top countries changed', s.key, s.val())
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
         this.setState({
           loading:false,
@@ -131,7 +123,6 @@ export default class Research extends Component {
       }
     })
     pollstarRef.on('child_changed', s => {
-      console.log('poll star data changed', s.key, s.val())
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
         this.setState({
           loading:false,
@@ -140,7 +131,6 @@ export default class Research extends Component {
       }
     })
     pollstarRef.on('child_added', s => {
-      console.log('poll star data added', s.key, s.val())
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
         this.setState({
           loading:false,
@@ -164,6 +154,7 @@ export default class Research extends Component {
 
 
   render() {
+    console.log('render called', this.state)
     let resultRow = {
       marginTop:'30px'
     }

@@ -25,3 +25,5 @@ export const scoresRef = firebase.database().ref('scores')
 export const topCitiesRef = firebase.database().ref('top-cities')
 export const topCountriesRef = firebase.database().ref('top-countries')
 export const pollstarRef = firebase.database().ref('pollstarData')
+//create a firebase ref that serves as a signaling tool for the scrapers to run
+export const signalingRef = firebase.database().ref('signalingRef')
