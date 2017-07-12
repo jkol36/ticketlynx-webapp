@@ -5,6 +5,7 @@ const routes = {
   '/socialData': 'socialData',
   '/codeBank': 'codeBank',
   '/Research': 'research',
+  '/Calculator': 'calculator',
   '/dashboard': 'Dashboard',
   '/components': 'Components',
   '/charts': 'Charts',

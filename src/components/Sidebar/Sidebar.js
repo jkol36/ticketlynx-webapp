@@ -33,6 +33,9 @@ class Sidebar extends Component {
             <li className={this.activeRoute('/Research')}> 
               <NavLink to={'/Research'} className='nav-link' activeClassName='active'> <i className='fa fa-book'/> Research <span className="badge badge-info">NEW</span> </NavLink>
             </li>
+            <li className={this.activeRoute('/Calculator')}>
+              <NavLink to={'/Calculator'} className='nav-link' activeClassName='active'> <i className='fa fa-calculator'/> Calculator <span className='badge badge-info'> NEW</span></NavLink>
+            </li>
           </ul>
         </nav>
       </div>
