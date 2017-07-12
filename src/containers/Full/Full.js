@@ -8,6 +8,7 @@ import Footer from '../../components/Footer/';
 
 import Dashboard from '../../views/Dashboard/'
 import Reports from '../../views/Reports/'
+import Calculator from '../../views/Calculator'
 import OnSaleList from '../../views/OnSaleList'
 import SocialStats from '../../views/SocialStats'
 import Research from '../../views/Research'
@@ -61,6 +62,7 @@ class Full extends Component {
                 <Route path='/socialData' name='socialData' component={SocialStats} />
                 <Route path='/codeBank' name='codeBank' component={CodeBank} />
                 <Route path='/Research' name='Research' component={Research} />
+                <Route path='/Calculator' name='Calculator' component={Calculator} />
                 <Redirect from="/" to="/reports"/>
               </Switch>
             </div>
