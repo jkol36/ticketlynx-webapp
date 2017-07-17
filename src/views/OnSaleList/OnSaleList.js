@@ -15,11 +15,15 @@ class OnSaleList extends Component {
       year:'2017',
       startIndex: 0,
       endIndex:10,
-      query: ''
+      query: '',
+      recommendedBuys: {0: true},
+      showDetailModal: false
     }
     this.fetchOnSaleList = this.fetchOnSaleList.bind(this)
     this.handleClick = this.handleClick.bind(this)
     this.filterItems = this.filterItems.bind(this)
+    this.paginate = this.paginate.bind(this)
+    this.toggleDetailModal = this.toggleDetailModal.bind(this)
   }
   componentDidMount() {
     this.fetchOnSaleList()
@@ -33,8 +37,9 @@ class OnSaleList extends Component {
   }
 
   fetchOnSaleList() {
+    console.log('fetching items')
     let onSaleItems = []
-    onSaleRef.once('value', s => {
+    onSaleRef.limitToLast(this.state.count).once('value', s => {
       console.log(s.val())
       if(s.exists()) {
         Object.keys(s.val()).map(k => {
@@ -52,18 +57,43 @@ class OnSaleList extends Component {
   filterItems() {
     if (this.state.query.length < 3)
       return this.state.onSaleItems
+    if('recommended'.match(regex)) {
+      return this.state.onSaleItems.filter((item, index) => {
+        return this.state.recommendedBuys[index] === true
+      })
+    }
     const regex = new RegExp(this.state.query, 'gi')
-    return this.state.onSaleItems.filter(t =>
+    return this.state.onSaleItems.filter((t, index) =>
       (t.venue.match(regex)) ||
       t.eventName.match(regex) ||
       t.city.match(regex)
+
+
     )
   }
 
+  toggleDetailModal() {
+    console.log('should show detail modal')
+    this.setState({
+      showDetailModal: !this.state.showDetailModal
+    })
+
+  }
+
+  paginate() {
+    this.setState({
+      count: this.state.count+10,
+      loading:true
+    })
+    setTimeout(() => this.fetchOnSaleList(), 2000)
+  } 
+
   render() {
-    console.log('this.state.startIndex', 'this.state.endIndex', this.state.startIndex, this.state.endIndex)
     const onSaleTableStyle = {
       'tableLayout':'fixed'
+    }
+    const spanStyles = {
+      fontSize: '11px'
     }
     let providers = eliminateDuplicates(this.state.onSaleItems.map(item => item.provider))
     let tableHeaders = []
@@ -79,8 +109,29 @@ class OnSaleList extends Component {
     let onSaleItems = this.filterItems()
     .sort((a,b) => moment(b.onSaleDate) - moment(a.onSaleDate))
     .sort((a, b) => +a.onSaleTime.split(' ')[0].split(':')[0] - +b.onSaleTime.split(' ')[0].split(':')[0])
-    .splice(this.state.startIndex, this.state.endIndex)
     .map((item, index) => {
+      if(this.state.recommendedBuys[index] !== undefined) {
+        return (
+             <tr key={index} onClick={this.toggleDetailModal}>
+                <td> {item['eventName']} 
+                  <br></br>
+                  <Link to={`/socialData/${item.eventName}`} activeClassName='active' data-for='test' data-tip='View Social Data'>
+                    <ReactToolTip id='test'/>
+                    <i className='fa fa-info-circle' style={{cursor:'pointer'}}/> 
+                  </Link>
+                </td> 
+              {Object.keys(item).map(k => {
+                if(k !== 'My Notes' && k !== 'eventName' && k !== 'publicSaleUrl' && k !== 'ticketLink' && k !=='provider') {
+                  return (<td key={k}> {item[k]} </td>)
+                }
+              })}
+              <td> 
+                <a className='btn btn-success' target='_blank' href={item.provider === 'Stublr' ? item.publicSaleUrl: item.ticketLink} style={{color:'white'}}> Buy tickets </a>
+              </td>
+              <td><span className='badge badge-primary badge-thick'>recommended</span></td>
+          </tr>
+        )
+      }
       return (
         <tr key={index}>
             <td> {item['eventName']} 
@@ -123,6 +174,7 @@ class OnSaleList extends Component {
                       return (<th key={index}>{k}</th> )
                     })}
                     <th> purchase </th>
+                    <th> notes </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -131,11 +183,29 @@ class OnSaleList extends Component {
               </table>
               <ul className='pagination'>
                 <li className='page-item'> 
-                  <a className='page-link' onClick={() => this.setState({startIndex: this.state.startIndex+10, endIndex:this.state.endIndex+10})} style={{color:'#20a8d8'}}>Load 10 more</a>
+                  <a className='page-link' onClick={this.paginate} style={{color:'#20a8d8'}}>Load 10 more</a>
                 </li>
               </ul>
             </div>
             </div>
+        </div>
+      </div>
+      {this.state.showDetailModal ? <div className='modal-backdrop fade show'/>: ''}
+      <div className={`modal fade ${this.state.showDetailModal ? 'show block': ''}`}>
+        <div className='modal-dialog modal-info'>
+          <div className='modal-content'> 
+            <div className='modal-header'> 
+              <h4 className='modal-title'> <i className='fa fa-question-circle'/> details</h4>
+              <button className='close'> 
+                <span onClick={this.toggleDetailModal}>x</span>
+              </button>
+            </div>
+            <div className='modal-body'> 
+              <h4> <span className='text-muted'> Recommended by:</span>  Isaac</h4>
+              <h4> <span className='text-muted'> Amount of tickets to buy:</span>  40</h4>
+              <h4> <span className='text-muted'> Additional Comments:</span>  this shit is a winner</h4>
+            </div>
+          </div>
         </div>
       </div>
     </div>
