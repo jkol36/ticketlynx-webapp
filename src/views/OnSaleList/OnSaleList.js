@@ -20,6 +20,7 @@ class OnSaleList extends Component {
     this.fetchOnSaleList = this.fetchOnSaleList.bind(this)
     this.handleClick = this.handleClick.bind(this)
     this.filterItems = this.filterItems.bind(this)
+    this.paginate = this.paginate.bind(this)
   }
   componentDidMount() {
     this.fetchOnSaleList()
@@ -60,6 +61,14 @@ class OnSaleList extends Component {
       t.city.match(regex)
     )
   }
+
+  paginate() {
+    this.setState({
+      count: this.state.count+10,
+      loading:true
+    })
+    setTimeout(() => this.fetchOnSaleList(), 2000)
+  } 
 
   render() {
     console.log('this.state.startIndex', 'this.state.endIndex', this.state.startIndex, this.state.endIndex)
@@ -131,7 +140,7 @@ class OnSaleList extends Component {
               </table>
               <ul className='pagination'>
                 <li className='page-item'> 
-                  <a className='page-link' onClick={() => (this.setState({count:this.state.count + 10}); this.fetchOnSaleList())} style={{color:'#20a8d8'}}>Load 10 more</a>
+                  <a className='page-link' onClick={this.paginate} style={{color:'#20a8d8'}}>Load 10 more</a>
                 </li>
               </ul>
             </div>
