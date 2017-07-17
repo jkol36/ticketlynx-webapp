@@ -33,8 +33,9 @@ class OnSaleList extends Component {
   }
 
   fetchOnSaleList() {
+    console.log('fetching items')
     let onSaleItems = []
-    onSaleRef.once('value', s => {
+    onSaleRef.limitToLast(this.state.count).once('value', s => {
       console.log(s.val())
       if(s.exists()) {
         Object.keys(s.val()).map(k => {
@@ -79,7 +80,6 @@ class OnSaleList extends Component {
     let onSaleItems = this.filterItems()
     .sort((a,b) => moment(b.onSaleDate) - moment(a.onSaleDate))
     .sort((a, b) => +a.onSaleTime.split(' ')[0].split(':')[0] - +b.onSaleTime.split(' ')[0].split(':')[0])
-    .splice(this.state.startIndex, this.state.endIndex)
     .map((item, index) => {
       return (
         <tr key={index}>
@@ -131,7 +131,7 @@ class OnSaleList extends Component {
               </table>
               <ul className='pagination'>
                 <li className='page-item'> 
-                  <a className='page-link' onClick={() => this.setState({startIndex: this.state.startIndex+10, endIndex:this.state.endIndex+10})} style={{color:'#20a8d8'}}>Load 10 more</a>
+                  <a className='page-link' onClick={() => (this.setState({count:this.state.count + 10}); this.fetchOnSaleList())} style={{color:'#20a8d8'}}>Load 10 more</a>
                 </li>
               </ul>
             </div>
