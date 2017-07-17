@@ -55,6 +55,7 @@ class OnSaleList extends Component {
   }
 
   filterItems() {
+    const regex = new RegExp(this.state.query, 'gi')
     if (this.state.query.length < 3)
       return this.state.onSaleItems
     if('recommended'.match(regex)) {
@@ -62,7 +63,6 @@ class OnSaleList extends Component {
         return this.state.recommendedBuys[index] === true
       })
     }
-    const regex = new RegExp(this.state.query, 'gi')
     return this.state.onSaleItems.filter((t, index) =>
       (t.venue.match(regex)) ||
       t.eventName.match(regex) ||
