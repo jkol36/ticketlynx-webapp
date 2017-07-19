@@ -1,3 +1,4 @@
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { onSaleRef } from '../../config'
 import React, { Component } from 'react'
 import moment from 'moment'
@@ -16,17 +17,28 @@ class OnSaleList extends Component {
       startIndex: 0,
       endIndex:10,
       query: '',
-      recommendedBuys: {0: true},
-      showDetailModal: false
+      recommendedBuys: {},
+      showDetailModal: false,
+      itemBeingEdited: null,
+      itemChanges: {},
+      selectedItem: null,
+      editing:false
     }
     this.fetchOnSaleList = this.fetchOnSaleList.bind(this)
     this.handleClick = this.handleClick.bind(this)
     this.filterItems = this.filterItems.bind(this)
     this.paginate = this.paginate.bind(this)
-    this.toggleDetailModal = this.toggleDetailModal.bind(this)
+    this.toggle = this.toggle.bind(this)
+    this.toggleEdit = this.toggleEdit.bind(this)
   }
   componentDidMount() {
     this.fetchOnSaleList()
+    onSaleRef.on('child_changed', s => {
+      console.log('child changed', s.val())
+      this.setState({
+        onSaleItems: [...this.state.onSaleItems, Object.assign({}, {id: s.key}, s.val())]
+      })
+    })
   }
 
   handleClick() {
@@ -39,11 +51,11 @@ class OnSaleList extends Component {
   fetchOnSaleList() {
     console.log('fetching items')
     let onSaleItems = []
-    onSaleRef.limitToLast(this.state.count).once('value', s => {
+    onSaleRef.orderByChild('reccommended').limitToLast(this.state.count).once('value', s => {
       console.log(s.val())
       if(s.exists()) {
         Object.keys(s.val()).map(k => {
-          onSaleItems.push(s.val()[k])
+          onSaleItems.push(Object.assign({},s.val()[k], {id:k}))
         })
       }
     }).then(() => {
@@ -60,7 +72,7 @@ class OnSaleList extends Component {
       return this.state.onSaleItems
     if('recommended'.match(regex)) {
       return this.state.onSaleItems.filter((item, index) => {
-        return this.state.recommendedBuys[index] === true
+        return item.reccommended === true
       })
     }
     return this.state.onSaleItems.filter((t, index) =>
@@ -72,12 +84,38 @@ class OnSaleList extends Component {
     )
   }
 
-  toggleDetailModal() {
-    console.log('should show detail modal')
+  toggle(item) {
+    console.log(`toggle called with`, item)
     this.setState({
-      showDetailModal: !this.state.showDetailModal
+      showDetailModal: !this.state.showDetailModal,
+      selectedItem: item
     })
 
+  }
+
+  toggleEdit(item) {
+    let _this = this
+    if(
+      this.state.itemBeingEdited &&
+      Object.keys(this.state.itemChanges).length > 0
+      ) {
+      console.log('saving changes for item', item.id)
+      let itemId = this.state.itemBeingEdited.id
+      onSaleRef.child(this.state.itemBeingEdited.id).update(Object.assign(this.state.itemChanges[this.state.itemBeingEdited.id], {reccommended:true, reccommendedBy: 'Isaac'}), () => {
+        this.setState({
+          editing: false,
+          showDetailModal: false,
+          itemBeingEdited: false,
+          itemChanges: {},
+          recommendedBuys: Object.assign({}, this.state.recommendedBuys, {[itemId]:true})
+        })
+      })
+    }
+    this.setState({
+      editing:!this.state.editing,
+      showDetailModal: !this.state.showDetailModal,
+      itemBeingEdited: this.state.itemBeingEdited ? null: item
+    })
   }
 
   paginate() {
@@ -89,19 +127,67 @@ class OnSaleList extends Component {
   } 
 
   render() {
+    console.log('item being edited is', this.state.itemBeingEdited ? this.state.itemBeingEdited: '')
+    console.log('changes', this.state.itemChanges)
+    console.log('reccommended', this.state.recommendedBuys)
     const onSaleTableStyle = {
       'tableLayout':'fixed'
     }
     const spanStyles = {
       fontSize: '11px'
     }
+    const buildModalBody = () => {
+      console.log('building modal body')
+      if(this.state.editing === true) {
+        return (
+          <form className='form-horizontal'>
+            <div className="form-group row">
+              <label className='col-md-3 form-control-label'><i className='fa fa-hashtag'/> Ticket To Purchase</label>
+              <div className='col-md-9'>
+                <input type="text" onChange={(e) => this.setState({itemChanges: {[this.state.itemBeingEdited.id]: Object.assign({}, this.state.itemChanges[this.state.itemBeingEdited.id], {numTicketsToBuy:e.target.value})}})} id="numTickets" name="numTickets" className="form-control" placeholder="42"/>
+              </div>
+            </div>
+            <div className="form-group row">
+              <label className="col-md-3 form-control-label"  htmlFor="textarea-input"><i className='fa fa-comments'/> Additional comments</label>
+              <div className="col-md-9">
+                <textarea id="textarea-input"  onChange={(e) => this.setState({itemChanges: {[this.state.itemBeingEdited.id]: Object.assign({}, this.state.itemChanges[this.state.itemBeingEdited.id], {additionalComments:e.target.value})}})} name="textarea-input" rows="9" className="form-control" placeholder="Content.."></textarea>
+              </div>
+            </div>
+          </form>
+        )
+      }
+      else if(this.state.selectedItem) {
+        return (
+          <div>
+            <h4> <span className='text-muted'> Recommended by:</span> {this.state.selectedItem.reccommendedBy} </h4>
+            <h4> <span className='text-muted'> Num Tickets To Buy:</span> {this.state.selectedItem.numTicketsToBuy} </h4>
+            <h4> <span className='text-muted'> Additional Comments:</span> {this.state.selectedItem.additionalComments} </h4>
+          </div>
+        )
+      }
+    }
+    const buildModalHeading = () => {
+      console.log('building modal heading')
+      if(this.state.editing === true) {
+        return (
+          <div className='modal-title'> <i className='fa fa-thumbs-up'> </i> Recommend this item</div>
+        )
+      }
+      else {
+         return (
+           <div> <i className='fa fa-question-circle'> </i> Details</div>
+        )
+      }
+    }
     let providers = eliminateDuplicates(this.state.onSaleItems.map(item => item.provider))
     let tableHeaders = []
     providers.forEach(provider => {
       let keys = Object.keys(this.state.onSaleItems.filter(item => item.provider === provider)[0])
-      keys.forEach(key => {
-        if(tableHeaders.indexOf(key) === -1) 
-          tableHeaders.push(key)
+      keys.forEach(k => {
+        if(k !== 'id' && k !== 'numTicketsToBuy' && k !== 'reccommended' && k !== 'additionalComments' && k !== 'reccommendedBy') {
+          if(tableHeaders.indexOf(k) === -1) 
+            tableHeaders.push(k)
+        }
       })
       //tableHeaders.push(Object.keys(this.state.onSaleItems.filter(item => item.provider === provider)[0]))
     })
@@ -110,9 +196,9 @@ class OnSaleList extends Component {
     .sort((a,b) => moment(b.onSaleDate) - moment(a.onSaleDate))
     .sort((a, b) => +a.onSaleTime.split(' ')[0].split(':')[0] - +b.onSaleTime.split(' ')[0].split(':')[0])
     .map((item, index) => {
-      if(this.state.recommendedBuys[index] !== undefined) {
+      if(this.state.recommendedBuys[item.id] !== undefined || item.reccommended !== undefined) {
         return (
-             <tr key={index} onClick={this.toggleDetailModal}>
+             <tr key={index} onClick={() => this.toggle(item)}>
                 <td> {item['eventName']} 
                   <br></br>
                   <Link to={`/socialData/${item.eventName}`} activeClassName='active' data-for='test' data-tip='View Social Data'>
@@ -121,7 +207,17 @@ class OnSaleList extends Component {
                   </Link>
                 </td> 
               {Object.keys(item).map(k => {
-                if(k !== 'My Notes' && k !== 'eventName' && k !== 'publicSaleUrl' && k !== 'ticketLink' && k !=='provider') {
+                if(k !== 'My Notes' && 
+                  k !== 'eventName' && 
+                  k !== 'publicSaleUrl' && 
+                  k !== 'ticketLink' && 
+                  k !=='provider' && 
+                  k !== 'id' &&
+                  k !== 'reccommended' &&
+                  k !== 'reccommendedBy' && 
+                  k !== 'numTicketsToBuy' && 
+                  k !== 'additionalComments'
+                  ) {
                   return (<td key={k}> {item[k]} </td>)
                 }
               })}
@@ -133,7 +229,7 @@ class OnSaleList extends Component {
         )
       }
       return (
-        <tr key={index}>
+        <tr key={index} onClick={() => this.toggleEdit(item)}>
             <td> {item['eventName']} 
               <br></br>
               <Link to={`/socialData/${item.eventName}`} activeClassName='active' data-for='test' data-tip='View Social Data'>
@@ -142,7 +238,17 @@ class OnSaleList extends Component {
               </Link>
             </td> 
           {Object.keys(item).map(k => {
-            if(k !== 'My Notes' && k !== 'eventName' && k !== 'publicSaleUrl' && k !== 'ticketLink' && k !=='provider') {
+            if(k !== 'My Notes' && 
+                  k !== 'eventName' && 
+                  k !== 'publicSaleUrl' && 
+                  k !== 'ticketLink' && 
+                  k !=='provider' && 
+                  k !== 'id' &&
+                  k !== 'reccommended' &&
+                  k !== 'reccommendedBy' && 
+                  k !== 'numTicketsToBuy' && 
+                  k !== 'additionalComments'
+                  ) {
               return (<td key={k}> {item[k]} </td>)
             }
           })}
@@ -161,6 +267,18 @@ class OnSaleList extends Component {
     return (
       <div className='animated fadeIn'>
         <div className='row'>
+          <Modal isOpen={this.state.showDetailModal} toggle={this.state.editing ? this.toggleEdit: this.toggle} className={this.props.classname}>
+            <ModalHeader toggle={this.state.editing ? this.toggleEdit: this.toggle}>
+              {buildModalHeading()}
+            </ModalHeader>
+            <ModalBody>
+              {buildModalBody()}
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={this.state.editing ? this.toggleEdit: this.toggle}>Done</Button>{' '}
+              <Button color="secondary" onClick={this.state.editing ? this.toggleEdit: this.toggle}>Close</Button>
+            </ModalFooter>
+        </Modal>
           <div className='col-lg-12'>
             <div className='card'>
               <div className='card-block'>
@@ -188,24 +306,6 @@ class OnSaleList extends Component {
               </ul>
             </div>
             </div>
-        </div>
-      </div>
-      {this.state.showDetailModal ? <div className='modal-backdrop fade show'/>: ''}
-      <div className={`modal fade ${this.state.showDetailModal ? 'show block': ''}`}>
-        <div className='modal-dialog modal-info'>
-          <div className='modal-content'> 
-            <div className='modal-header'> 
-              <h4 className='modal-title'> <i className='fa fa-question-circle'/> details</h4>
-              <button className='close'> 
-                <span onClick={this.toggleDetailModal}>x</span>
-              </button>
-            </div>
-            <div className='modal-body'> 
-              <h4> <span className='text-muted'> Recommended by:</span>  Isaac</h4>
-              <h4> <span className='text-muted'> Amount of tickets to buy:</span>  40</h4>
-              <h4> <span className='text-muted'> Additional Comments:</span>  this shit is a winner</h4>
-            </div>
-          </div>
         </div>
       </div>
     </div>
