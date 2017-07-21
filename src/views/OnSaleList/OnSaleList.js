@@ -14,6 +14,7 @@ class OnSaleList extends Component {
       onSaleItems: [],
       count:1000,
       year:'2017',
+      startTime: '7:00 AM',
       startIndex: 0,
       endIndex:10,
       query: '',
@@ -30,6 +31,7 @@ class OnSaleList extends Component {
     this.paginate = this.paginate.bind(this)
     this.toggle = this.toggle.bind(this)
     this.toggleEdit = this.toggleEdit.bind(this)
+    this.handleStartTime = this.handleStartTime.bind(this)
   }
   componentDidMount() {
     this.fetchOnSaleList()
@@ -47,13 +49,21 @@ class OnSaleList extends Component {
     })
     setTimeout(() => this.fetchOnSaleList(), 2000)
   }
+
+  handleStartTime(e) {
+    console.log('new start time', e.target.value)
+    this.setState({
+      startTime: e.target.value
+    })
+    setTimeout(() => this.fetchOnSaleList(), 1000)
+  }
   componentWillUnMount() {
     onSaleRef.off()
   }
   fetchOnSaleList() {
     console.log('fetching items')
     let onSaleItems = []
-    onSaleRef.orderByChild('reccomended').limitToFirst(500).once('value', s => {
+    onSaleRef.orderByChild('onSaleTime').equalTo(this.state.startTime).limitToFirst(100).once('value', s => {
       if(s.exists()) {
         Object.keys(s.val()).map(k => {
           onSaleItems.push(Object.assign({},s.val()[k], {id:k}))
@@ -261,11 +271,7 @@ class OnSaleList extends Component {
           fetching onsale list...
         </div>)
     }
-    if(this.state.onSaleItems.length === 0) {
-      return (
-        <h4 className='text-center'> Nothing on sale at the moment </h4>
-      )
-    }
+    
     return (
       <div className='animated fadeIn'>
         <div className='row'>
@@ -284,7 +290,38 @@ class OnSaleList extends Component {
           <div className='col-lg-12'>
             <div className='card'>
               <div className='card-block'>
-              <input placeholder='type something to filter events' className='form-control' onChange={(e) => this.setState({query:e.target.value})} value={this.state.query}/> 
+              <div className='form-group col-sm-4'> 
+                <div className='input-group'> 
+                  <span className='input-group-addon'> Filter </span>
+                  <input placeholder='type something to filter events' className='form-control' onChange={(e) => this.setState({query:e.target.value})} value={this.state.query}/> 
+                </div>
+
+              </div>
+              <div className='form-group col-sm-4'> 
+                <div className='input-group'> 
+                  <span className='input-group-addon'> Start Time </span>
+                  <select onChange={this.handleStartTime} className='form-control col-sm-2' > 
+                  <option> 7:00 AM </option>
+                  <option> 8:00 AM </option>
+                  <option> 9:00 AM </option>
+                  <option> 10:00 AM </option>
+                  <option> 11:00 AM </option>
+                  <option> 12:00 PM </option>
+                  <option> 1:00 PM </option>
+                  <option> 2:00 PM </option>
+                  <option> 3:00 PM </option>
+                  <option> 4:00 PM </option>
+                  <option> 5:00 PM </option>
+                  <option> 6:00 PM </option>
+                  <option> 7:00 PM </option>
+                  <option> 8:00 PM </option>
+                  <option> 9:00 PM </option>
+                  <option> 10:00 PM </option>
+                  <option> 11:00 PM </option>
+                  <option> 12:00 AM</option>
+                </select>
+                </div>
+              </div>
               <span className='badge badge-success'> Showing {this.state.onSaleItems.length}</span>
               <table style={onSaleTableStyle} className='table table-bordered table-striped table-sm'> 
                 <thead> 
