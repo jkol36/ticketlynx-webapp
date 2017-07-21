@@ -122,7 +122,7 @@ export default class CodeBank extends Component {
               )
             }
             else {
-              return (<DatePicker className='form-control' selected={this.state.startDate} onChange={this.handleDateChange}/>)
+              return (<DatePicker className='form-control' selected={code.startDate ? code.startDate: this.state.startDate} onChange={this.handleDateChange}/>)
             }
           })}
           <td> <button className='btn btn-warning' onClick={() => this.removeCode(code)}> Remove Code </button> </td>
