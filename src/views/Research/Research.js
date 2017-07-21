@@ -47,100 +47,100 @@ export default class Research extends Component {
     albumRef.on('child_added', s => {
       console.log('album added', s.key, s.val())
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
+        this.setState(previousState => ({
           loading:false,
           queryResult: Object.keys(s.val()).map(k => s.val()[k])[0]
-        })
+        }))
       }
     })
     albumRef.on('child_changed', s => {
       console.log('album changed', s.key, s.val())
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
+        this.setState(previousState => ({
           loading:false,
-          queryResult: Object.keys(s.val()).map(k => s.val()[k])[0]
-        })
+          queryResult: Object.assign({}, previousState.queryResult, Object.keys(s.val()).map(k => s.val()[k])[0])
+        }))
       }
     })
 
     artistRef.on('child_changed', s => {
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
+        this.setState(previousState => ({
           loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
+          queryResult: Object.assign({}, previousState.queryResult, s.val())
+        }))
       }
     })
     artistRef.on('child_added', s => {
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
+        this.setState(previousState => ({
           loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
+          queryResult: Object.assign({}, previousState.queryResult, s.val())
+        }))
       }
     })
     scoresRef.on('child_changed', s => {
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
+        this.setState(previousState => ({
           loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
+          queryResult: Object.assign({}, previousState.queryResult, s.val())
+        }))
       }
     })
     scoresRef.on('child_added', s => {
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
+        this.setState(previousState => ({
           loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
+          queryResult: Object.assign({}, previousState.queryResult, s.val())
+        }))
       }
     })
     topCitiesRef.on('child_added', s => {
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
+        this.setState(previousState => ({
           loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, {topCities:s.val()})
-        })
+          queryResult: Object.assign({}, previousState.queryResult, {topCities:s.val()})
+        }))
       }
     })
     topCitiesRef.on('child_changed', s => {
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
+        this.setState(previousState => ({
           loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, {topCities:s.val()})
-        })
+          queryResult: Object.assign({}, previousState.queryResult, {topCities:s.val()})
+        }))
       }
     })
     topCountriesRef.on('child_added', s => {
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
+        this.setState(previousState => ({
           loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, {topCountries:s.val()})
-        })
+          queryResult: Object.assign({}, previousState.queryResult, {topCountries:s.val()})
+        }))
       }
     })
     topCountriesRef.on('child_changed', s => {
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
+        this.setState(previousState => ({
           loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
+          queryResult: Object.assign({}, previousState.queryResult, s.val())
+        }))
       }
     })
     pollstarRef.on('child_changed', s => {
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
+        this.setState(previousState => ({
           loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
+          queryResult: Object.assign({}, previousState.queryResult, s.val())
+        }))
       }
     })
     pollstarRef.on('child_added', s => {
       if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
+        this.setState(previousState => ({
           loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
+          queryResult: Object.assign({}, previousState.queryResult, s.val())
+        }))
       }
     })
 

@@ -1,13 +1,18 @@
 import React, { Component } from 'react'
 import { codeBankRef } from '../../config'
+import DatePicker from 'react-datepicker'
+import moment from 'moment'
+import 'react-datepicker/dist/react-datepicker.css'
 
 export default class CodeBank extends Component {
   constructor(props) {
     super(props) 
     this.state = {
       loading:true,
-      codes:[]
+      codes:[],
+      startDate: moment()
     }
+    this.handleDateChange = this.handleDateChange.bind(this)
     this.handleCodeChange = this.handleCodeChange.bind(this)
     this.saveCode = this.saveCode.bind(this)
   }
@@ -54,6 +59,12 @@ export default class CodeBank extends Component {
 
   componentWillUnmount() {
     codeBankRef.off()
+  }
+
+  handleDateChange(date) {
+    this.setState({
+      startDate: date
+    });
   }
 
   handleCodeChange(newVal, itemIndex, key) {
@@ -105,10 +116,13 @@ export default class CodeBank extends Component {
       return (
         <tr key={codeIndex}> 
           {Object.keys(code).map((k, index) => {
-            if(k !== 'firebaseUrl') {
+            if(k !== 'firebaseUrl' && k !== 'expirationdate') {
               return (
                 <td key={index}> <input className='form-control' value={`${code[k]}` } style={codeStyle} onChange={(e) => this.handleCodeChange(e.target.value, codeIndex, k)}/></td>
               )
+            }
+            else {
+              return (<DatePicker className='form-control' selected={this.state.startDate} onChange={this.handleDateChange}/>)
             }
           })}
           <td> <button className='btn btn-warning' onClick={() => this.removeCode(code)}> Remove Code </button> </td>
@@ -126,6 +140,7 @@ export default class CodeBank extends Component {
                     <tr> 
                       <th> Event Name </th>
                       <th> Password </th>
+                      <th> expiration date </th>
                       <th> Remove Code </th>
                     </tr>
                   </thead>
