@@ -23,6 +23,11 @@ export default class Research extends Component {
   }
 
   handleSearchInput(e) {
+    if(e.target.value.length === 0) {
+      this.setState({
+        queryResult:{}
+      })
+    }
     e.preventDefault();
     this.setState({
       query: e.target.value
