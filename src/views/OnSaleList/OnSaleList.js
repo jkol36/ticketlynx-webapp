@@ -12,7 +12,7 @@ class OnSaleList extends Component {
     this.state = {
       loading:true,
       onSaleItems: [],
-      count:10,
+      count:1000,
       year:'2017',
       startIndex: 0,
       endIndex:10,
@@ -47,12 +47,13 @@ class OnSaleList extends Component {
     })
     setTimeout(() => this.fetchOnSaleList(), 2000)
   }
-
+  componentWillUnMount() {
+    onSaleRef.off()
+  }
   fetchOnSaleList() {
     console.log('fetching items')
     let onSaleItems = []
-    onSaleRef.orderByChild('reccommended').limitToLast(this.state.count).once('value', s => {
-      console.log(s.val())
+    onSaleRef.orderByChild('reccomended').limitToFirst(500).once('value', s => {
       if(s.exists()) {
         Object.keys(s.val()).map(k => {
           onSaleItems.push(Object.assign({},s.val()[k], {id:k}))
@@ -127,9 +128,6 @@ class OnSaleList extends Component {
   } 
 
   render() {
-    console.log('item being edited is', this.state.itemBeingEdited ? this.state.itemBeingEdited: '')
-    console.log('changes', this.state.itemChanges)
-    console.log('reccommended', this.state.recommendedBuys)
     const onSaleTableStyle = {
       'tableLayout':'fixed'
     }
@@ -137,7 +135,6 @@ class OnSaleList extends Component {
       fontSize: '11px'
     }
     const buildModalBody = () => {
-      console.log('building modal body')
       if(this.state.editing === true) {
         return (
           <form className='form-horizontal'>
@@ -167,7 +164,6 @@ class OnSaleList extends Component {
       }
     }
     const buildModalHeading = () => {
-      console.log('building modal heading')
       if(this.state.editing === true) {
         return (
           <div className='modal-title'> <i className='fa fa-thumbs-up'> </i> Recommend this item</div>
@@ -193,7 +189,7 @@ class OnSaleList extends Component {
     })
     eliminateDuplicates(tableHeaders)
     let onSaleItems = this.filterItems()
-    .sort((a,b) => moment(b.onSaleDate) - moment(a.onSaleDate))
+    .sort((a,b) => moment(a.onSaleDate) - moment(b.onSaleDate))
     .sort((a, b) => +a.onSaleTime.split(' ')[0].split(':')[0] - +b.onSaleTime.split(' ')[0].split(':')[0])
     .map((item, index) => {
       if(this.state.recommendedBuys[item.id] !== undefined || item.reccommended !== undefined) {
@@ -252,7 +248,8 @@ class OnSaleList extends Component {
               return (<td key={k}> {item[k]} </td>)
             }
           })}
-          <td> <a className='btn btn-success' target='_blank' href={item.provider === 'Stublr' ? item.publicSaleUrl: item.ticketLink} style={{color:'white'}}> Buy tickets </a></td>
+          <td> <a className='btn btn-success btn-sm' target='_blank' href={item.provider === 'Stublr' ? item.publicSaleUrl: item.ticketLink} style={{color:'white'}}> Buy tickets </a></td>
+          <td></td>
 
         </tr>
       )
@@ -263,6 +260,11 @@ class OnSaleList extends Component {
         <div className='row'> 
           fetching onsale list...
         </div>)
+    }
+    if(this.state.onSaleItems.length === 0) {
+      return (
+        <h4 className='text-center'> Nothing on sale at the moment </h4>
+      )
     }
     return (
       <div className='animated fadeIn'>
@@ -283,7 +285,8 @@ class OnSaleList extends Component {
             <div className='card'>
               <div className='card-block'>
               <input placeholder='type something to filter events' className='form-control' onChange={(e) => this.setState({query:e.target.value})} value={this.state.query}/> 
-              <table style={onSaleTableStyle} className='table'> 
+              <span className='badge badge-success'> Showing {this.state.onSaleItems.length}</span>
+              <table style={onSaleTableStyle} className='table table-bordered table-striped table-sm'> 
                 <thead> 
                   <tr>
                   <th> Event Name </th>
@@ -299,11 +302,6 @@ class OnSaleList extends Component {
                   {onSaleItems} 
                 </tbody>
               </table>
-              <ul className='pagination'>
-                <li className='page-item'> 
-                  <a className='page-link' onClick={this.paginate} style={{color:'#20a8d8'}}>Load 10 more</a>
-                </li>
-              </ul>
             </div>
             </div>
         </div>

@@ -12,15 +12,19 @@ export default class CodeBank extends Component {
     this.saveCode = this.saveCode.bind(this)
   }
 
-  componentWillMount() {
+  componentDidMount() {
+    console.log('code bank did mount')
     //setup our listeners for codes added and codes removed
     //and obviously save all current codes in state
     codeBankRef.once('value', s => {
+      console.log(s.val())
       if(s.exists()) {
+        console.log('snap exists', s.val())
         this.setState({
           loading:false,
           codes: Object.keys(s.val()).map(k => ({...s.val()[k], firebaseUrl:k}))
         })
+        return
       }
       else {
         this.setState({
@@ -36,7 +40,6 @@ export default class CodeBank extends Component {
     })
 
     codeBankRef.on('child_removed', s => {
-      console.log('child removed', s.val())
       this.setState({
         codes: this.state.codes.filter(code => code.firebaseUrl !== s.key)
       })
@@ -47,6 +50,10 @@ export default class CodeBank extends Component {
         codes: [...this.state.codes, {...s.val(), firebaseUrl:s.key}]
       })
     })
+  }
+
+  componentWillUnmount() {
+    codeBankRef.off()
   }
 
   handleCodeChange(newVal, itemIndex, key) {
@@ -63,7 +70,6 @@ export default class CodeBank extends Component {
 
   saveCode(e) {
     e.preventDefault()
-    console.log('should save this code in firebase', this.state.editedCode)
     const { firebaseUrl } = this.state.editedCode
     if(firebaseUrl === null) {
       codeBankRef.push(this.state.editedCode, () => {
@@ -80,11 +86,20 @@ export default class CodeBank extends Component {
     codeBankRef.child(code.firebaseUrl).remove()
   }
   render() {
+    console.log(this.state.codes)
     let codeStyle = {
       background:'#fff'
     }
     let addNewCodeStyle = {
       marginBottom:'5px'
+    }
+
+    if(this.state.loading) {
+      return (
+        <div className='animated fade-in'> 
+          <h4 className='text-center'> Loading codes...</h4>
+        </div>
+      )
     }
     let codeNodes = this.state.codes.map((code, codeIndex) => {
       return (

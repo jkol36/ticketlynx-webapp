@@ -18,6 +18,10 @@ class Reports extends Component {
     this.fetchReports()
   }
 
+  componentWillUnMount() {
+    reportRef.off()
+  }
+
   handleClick() {
     this.setState({
       count: this.state.count + 10
@@ -49,7 +53,12 @@ class Reports extends Component {
 
   render() {
     const reportTableStyle = {
-      fontSize: '0.58rem'
+      fontSize: '0.9em',
+      display: 'block',
+      width: '100%',
+      border: '1px solid #eee',
+      'max-height': '100%',
+      overflow: 'auto',
 
     }
     if(this.state.loading) {
@@ -67,7 +76,7 @@ class Reports extends Component {
                 Here are your last {this.state.count} recent sales from {this.state.year} <button className='btn btn-success btn-sm' onClick={this.changeYear}> See {this.state.year === '2017' ? '2016': '2017'} </button>
               </div>
               <div className='card-block'>
-                <table style={reportTableStyle} className='table table-sm table-condensed'> 
+                <table style={reportTableStyle} className='table table-bordered table-striped table-sm'> 
                   <thead> 
                     <tr>
                       {Object.keys(this.state.reports[0]).map(k => {
