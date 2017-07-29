@@ -68,6 +68,7 @@ export default class CodeBank extends Component {
   }
 
   handleCodeChange(newVal, itemIndex, key) {
+
     let code = this.state.codes[itemIndex]
     this.setState({
       editing:true,
@@ -116,13 +117,13 @@ export default class CodeBank extends Component {
       return (
         <tr key={codeIndex}> 
           {Object.keys(code).map((k, index) => {
-            if(k !== 'firebaseUrl' && k !== 'expirationdate') {
+            if(k !== 'firebaseUrl' && k !== 'expirationDate') {
               return (
                 <td key={index}> <input className='form-control' value={`${code[k]}` } style={codeStyle} onChange={(e) => this.handleCodeChange(e.target.value, codeIndex, k)}/></td>
               )
             }
             else {
-              return (<DatePicker className='form-control' selected={code.startDate ? code.startDate: this.state.startDate} onChange={this.handleDateChange}/>)
+              return (<DatePicker className='form-control' selected={code.expirationDate ? moment(code.expirationDate): this.state.startDate} onChange={(e) => this.handleCodeChange(e, codeIndex, 'expirationDate')}/>)
             }
           })}
           <td> <button className='btn btn-warning' onClick={() => this.removeCode(code)}> Remove Code </button> </td>
