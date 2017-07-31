@@ -13,7 +13,7 @@ export const SIGNUP_ENDPOINT = BASE_URL+'user/signup'
 firebase.initializeApp(config);
 const BASE_URL = 'http://localhost:5001/'
 global.Promise = require('bluebird')
-console.log('config running')
+
 export const reportRef = firebase.database().ref('reports')
 export const onSaleRef = firebase.database().ref('onSale')
 export const workRef = firebase.database().ref('work-to-do')
@@ -25,5 +25,6 @@ export const scoresRef = firebase.database().ref('scores')
 export const topCitiesRef = firebase.database().ref('top-cities')
 export const topCountriesRef = firebase.database().ref('top-countries')
 export const pollstarRef = firebase.database().ref('pollstarData')
+export const userRef = firebase.database().ref('users')
 //create a firebase ref that serves as a signaling tool for the scrapers to run
 export const signalingRef = firebase.database().ref('signalingRef')
