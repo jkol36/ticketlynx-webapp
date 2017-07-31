@@ -112,7 +112,7 @@ class OnSaleList extends Component {
       ) {
       console.log('saving changes for item', item.id)
       let itemId = this.state.itemBeingEdited.id
-      onSaleRef.child(this.state.itemBeingEdited.id).update(Object.assign(this.state.itemChanges[this.state.itemBeingEdited.id], {reccommended:true, reccommendedBy: 'Isaac'}), () => {
+      onSaleRef.child(this.state.itemBeingEdited.id).update(Object.assign(this.state.itemChanges[this.state.itemBeingEdited.id], {reccommended:true, reccommendedBy: localStorage.getItem('firstName')}), () => {
         this.setState({
           editing: false,
           showDetailModal: false,
@@ -234,6 +234,7 @@ class OnSaleList extends Component {
           </tr>
         )
       }
+      eliminateDuplicates(onSaleItems)
       return (
         <tr key={index} onClick={() => this.toggleEdit(item)}>
             <td> {item['eventName']} 

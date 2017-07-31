@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import firebase from 'firebase'
 import { Link, Switch, Route, Redirect } from 'react-router-dom'
 import Header from '../../components/Header/';
 import Sidebar from '../../components/Sidebar/';
@@ -28,11 +29,23 @@ import SimpleLineIcons from '../../views/Icons/SimpleLineIcons/'
 
 import { reportRef, onSaleRef, signalingRef } from '../../config'
 
-class Full extends Component {
+class App extends Component {
 
   componentDidMount() {
+
+    let loggedIn = localStorage.getItem('loggedIn')
+    if(!loggedIn) {
+      console.log(this.props.location.pathname)
+      if(this.props.location.pathname === '/signup') {
+        return this.props.history.push('signup')
+      }
+      else {
+        return this.props.history.push('login')
+      }
+    }
+
     //signal scrapers to run
-    signalingRef.push({lastRun: Date.now()})
+    //signalingRef.push({lastRun: Date.now()})
   }
 
   render() {
@@ -75,4 +88,4 @@ class Full extends Component {
   }
 }
 
-export default Full;
+export default App;
