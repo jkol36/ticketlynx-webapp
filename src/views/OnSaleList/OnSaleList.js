@@ -14,7 +14,7 @@ class OnSaleList extends Component {
       onSaleItems: [],
       count:1000,
       year:'2017',
-      startTime: '7:00 AM',
+      startTime: '10:00 AM',
       startIndex: 0,
       endIndex:10,
       query: '',
