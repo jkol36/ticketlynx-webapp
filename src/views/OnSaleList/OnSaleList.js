@@ -235,7 +235,7 @@ class OnSaleList extends Component {
         )
       }
       return (
-        <tr key={index} onClick={() => this.toggleEdit(item)}>
+        <tr key={index}>
             <td> {item['eventName']} 
               <br></br>
               <Link to={`/socialData/${item.eventName}`} activeClassName='active' data-for='test' data-tip='View Social Data'>
@@ -260,6 +260,7 @@ class OnSaleList extends Component {
           })}
           <td> <a className='btn btn-success btn-sm' target='_blank' href={item.provider === 'Stublr' ? item.publicSaleUrl: item.ticketLink} style={{color:'white'}}> Buy tickets </a></td>
           <td></td>
+          <td> <i className='fa fa-thumbs-up' onClick={() => this.toggleEdit(index)}> </i></td>
 
         </tr>
       )
@@ -333,6 +334,7 @@ class OnSaleList extends Component {
                     })}
                     <th> purchase </th>
                     <th> notes </th>
+                    <th> <i className='fa fa-edit'/> Reccommend </th> 
                   </tr>
                 </thead>
                 <tbody>
