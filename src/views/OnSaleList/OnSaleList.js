@@ -302,9 +302,6 @@ class OnSaleList extends Component {
                 <div className='input-group'> 
                   <span className='input-group-addon'> Start Time </span>
                   <select onChange={this.handleStartTime} className='form-control col-sm-2' > 
-                  <option> 7:00 AM </option>
-                  <option> 8:00 AM </option>
-                  <option> 9:00 AM </option>
                   <option> 10:00 AM </option>
                   <option> 11:00 AM </option>
                   <option> 12:00 PM </option>
@@ -320,6 +317,9 @@ class OnSaleList extends Component {
                   <option> 10:00 PM </option>
                   <option> 11:00 PM </option>
                   <option> 12:00 AM</option>
+                  <option> 7:00 AM </option>
+                  <option> 8:00 AM </option>
+                  <option> 9:00 AM </option>
                 </select>
                 </div>
               </div>
