@@ -234,7 +234,6 @@ class OnSaleList extends Component {
           </tr>
         )
       }
-      eliminateDuplicates(onSaleItems)
       return (
         <tr key={index} onClick={() => this.toggleEdit(item)}>
             <td> {item['eventName']} 

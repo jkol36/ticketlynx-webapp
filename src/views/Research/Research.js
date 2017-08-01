@@ -6,7 +6,7 @@ import {
   scoresRef,
   topCitiesRef,
   topCountriesRef,
-  pollstarRef,
+  reportRef,
   albumRef } from '../../config'
 
 
@@ -47,7 +47,6 @@ export default class Research extends Component {
       let scresRef = scoresRef.child(url)
       let tpCitiesRef = topCitiesRef.child(url)
       let tpCountriesRef = topCountriesRef.child(url)
-      let pllstarRef = pollstarRef.child(url)
 
       albmRef
       .once('value', s => {
@@ -176,27 +175,20 @@ export default class Research extends Component {
         })
       })
 
-      pllstarRef.once('value', s => {
-        if(s.exists) {
-          this.setState({
-            loading: false,
-            queryResult: Object.assign({}, this.state.queryResult, s.val())
-          })
-        }
-      })
-      pllstarRef.on('child_changed', s => {
-        this.setState({
-          loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
+      reportRef
+        .child('2017')
+        .orderByChild('Event Name')
+        .equalTo(this.state.query)
+        .once('value', s => {
+          if(s.exists()) {
+            this.setState({
+              loading:false,
+              queryResult: Object.assign({}, this.state.queryResult, {reportData: s.val()})
+            })
+          }
         })
       })
-      pllstarRef.on('child_added', s => {
-        this.setState({
-          loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
-      })
-    })
+
 
 
   }
@@ -209,12 +201,25 @@ export default class Research extends Component {
     scoresRef.off()
     artistRef.off()
     albumRef.off()
-    pollstarRef.off()
   }
 
 
 
   render() {
+    let avgProfit = 0
+    let totalTicketsBought = 0
+    let totalProfit = 0
+    if(this.state.queryResult) {
+      if(this.state.queryResult.reportData) {
+        totalTicketsBought = Object.keys(this.state.queryResult.reportData).length
+        Object.keys(this.state.queryResult.reportData).forEach(ticketKey => {
+          totalProfit += +this.state.queryResult.reportData[ticketKey].Profit
+        })
+        console.log(`total profit ${totalProfit}`)
+        console.log(`average profit per ticket ${totalProfit/totalTicketsBought}`)
+        avgProfit = totalProfit/totalTicketsBought
+      }
+    }
     let resultRow = {
       marginTop:'30px'
     }
@@ -235,33 +240,31 @@ export default class Research extends Component {
             <button className='btn btn-success' onClick={this.handleSearchSubmit}> Search </button>
           </div>
         </div>
-        <div style={resultRow} className='row'> 
-          <div className='col-lg-12'> 
-            <div className='card'> 
-              <div className='card-header white card-primary px-3 py-3 clearfix font-weight-bold font-sm btn-block'> 
-                HomeTown
-              </div>
-              <div className='card-block p-3 clearfix'> 
-                <div className='h5 text-info mb-0 mt-2'> 
-                  {this.state.queryResult ? this.state.queryResult.homeTown: ''}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
         <div style={resultRow} className='row'>
           <div className='col-lg-2'> 
-            <div className='card'> 
+            <div style={{height:'245px'}}className='card'> 
               <div className='card-header white card-primary px-3 py-3 clearfix font-weight-bold font-sm btn-block'> 
                 Latest Album
               </div>
-              <div className='card-block p-3 clearfix'> 
+              <div  className='card-block p-3 clearfix'> 
                 <img className='float-left p-3' height='110' src={this.state.queryResult ? this.state.queryResult.albumImage: ''}/>
                 <div className='h5 text-info mb-0 mt-2'> 
                   {this.state.queryResult ? this.state.queryResult.name: ''}
                 </div>
                 <div className='text-muted text-uppercase font-weight-bold font-xs'> 
                   {this.state.queryResult ? this.state.queryResult.releaseDate: ''}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className='col-lg-2'> 
+            <div style={{height:'245px'}} className='card'> 
+              <div className='card-header white card-primary px-3 py-3 clearfix font-weight-bold font-sm btn-block'> 
+                HomeTown
+              </div>
+              <div className='card-block p-3 clearfix'> 
+                <div className='h5 text-info mb-0 mt-2'> 
+                  {this.state.queryResult ? this.state.queryResult.homeTown: ''}
                 </div>
               </div>
             </div>
@@ -302,38 +305,26 @@ export default class Research extends Component {
                   <i className='fa fa-money'></i>
                 </div>
                 <div className='h4 mb-0'>
-                  {this.state.queryResult.avgGross ? this.state.queryResult.avgGross: ''}
+                  ${Math.floor(totalProfit)}
                 </div>
-                <small className='text-muted text-uppercase font-weight-bold'> Average Gross </small>
+                <small className='text-muted text-uppercase font-weight-bold'> Total Profit </small>
               </div>
             </div>
           </div>
           <div className='col-lg-2'> 
             <div className='card card-inverse card-danger fixed-height'> 
               <div className='card-block fixed-height'> 
-                <div className='h1 text-muted text-right mb-2'> 
+                <div className='h1 text-muted text-right mb-3'> 
                   <i className='fa fa-money'></i>
                 </div>
                 <div className='h4 mb-0'>
-                  {this.state.queryResult.avgTicketsSold ? this.state.queryResult.avgTicketsSold: ''}
+                  ${Math.floor(avgProfit)}
                 </div>
-                <small className='text-muted text-uppercase font-weight-bold'> Average Tickets Sold </small>
+                <small className='text-muted text-uppercase font-weight-bold'> Average Profit Per Ticket </small>
               </div>
             </div>
           </div>
-          <div className='col-lg-2'> 
-            <div className='card card-inverse card-warning fixed-height'> 
-              <div className='card-block fixed-height'> 
-                <div className='h1 text-muted text-right mb-2'> 
-                  <i className='fa fa-line-chart'></i>
-                </div>
-                <div className='h4 mb-0'>
-                  {this.state.queryResult.headLineShows ? this.state.queryResult.headLineShows: ''}
-                </div>
-                <small className='text-muted text-uppercase font-weight-bold'> Headline Shows </small>
-              </div>
-            </div>
-          </div>
+          
           <div className='col-lg-6'> 
             <div className='card'>
               <div className='card-header'><h4 className='mb-2'>Top Countries </h4></div>

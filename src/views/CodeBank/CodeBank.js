@@ -68,16 +68,21 @@ export default class CodeBank extends Component {
   }
 
   handleCodeChange(newVal, itemIndex, key) {
-
     let code = this.state.codes[itemIndex]
+    if(key === 'expirationDate') {
+      newVal = moment(newVal).format()
+    }
+    let newCode = Object.assign(code, {[key]:newVal})
+    console.log('got new code', newCode)
+    let oldCodes = this.state.codes
+    oldCodes[itemIndex] = newCode
     this.setState({
       editing:true,
-      editedCode: code,
-      codeIndex: itemIndex
+      editedCode: newCode,
+      codeIndex: itemIndex,
+      codes: oldCodes
+
     })
-    let newCode = Object.assign(code, {[key]:newVal})
-    code = newCode
-    this.forceUpdate()
   }
 
   saveCode(e) {
@@ -116,16 +121,9 @@ export default class CodeBank extends Component {
     let codeNodes = this.state.codes.map((code, codeIndex) => {
       return (
         <tr key={codeIndex}> 
-          {Object.keys(code).map((k, index) => {
-            if(k !== 'firebaseUrl' && k !== 'expirationDate') {
-              return (
-                <td key={index}> <input className='form-control' value={`${code[k]}` } style={codeStyle} onChange={(e) => this.handleCodeChange(e.target.value, codeIndex, k)}/></td>
-              )
-            }
-            else {
-              return (<DatePicker className='form-control' selected={code.expirationDate ? moment(code.expirationDate): this.state.startDate} onChange={(e) => this.handleCodeChange(e, codeIndex, 'expirationDate')}/>)
-            }
-          })}
+          <td> <input className='form-control' value={`${code.eventName}` } style={codeStyle} onChange={(e) => this.handleCodeChange(e.target.value, codeIndex, 'eventName')}/></td>
+          <td> <input className='form-control' value={`${code.password}` } style={codeStyle} onChange={(e) => this.handleCodeChange(e.target.value, codeIndex, 'password')}/></td>
+          <DatePicker className='form-control' selected={moment(code.expirationDate)} onChange={(e) => this.handleCodeChange(e, codeIndex, 'expirationDate')}/>
           <td> <button className='btn btn-warning' onClick={() => this.removeCode(code)}> Remove Code </button> </td>
         </tr>
       )
@@ -140,8 +138,8 @@ export default class CodeBank extends Component {
                   <thead> 
                     <tr> 
                       <th> Event Name </th>
-                      <th> Password </th>
-                      <th> expiration date </th>
+                      <th> password </th>
+                      <th> Expiration date </th>
                       <th> Remove Code </th>
                     </tr>
                   </thead>
@@ -155,7 +153,7 @@ export default class CodeBank extends Component {
           <div className='col-lg-4'>
             <div style={addNewCodeStyle} className='row'>
               <button className='btn btn-primary' onClick={() => this.setState({
-                codes: [...this.state.codes, {eventName:'placeholder', password:'placeholder', 'firebaseUrl': null}]
+                codes: [...this.state.codes, {eventName:'placeholder', password:'placeholder', 'expirationDate': moment.now(), 'firebaseUrl': null}]
               })}> Add New Code</button>
             </div>
             <div className='row'>
