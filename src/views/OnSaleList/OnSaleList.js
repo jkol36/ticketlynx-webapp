@@ -204,7 +204,7 @@ class OnSaleList extends Component {
     .map((item, index) => {
       if(this.state.recommendedBuys[item.id] !== undefined || item.reccommended !== undefined) {
         return (
-             <tr key={index} onClick={() => this.toggle(item)}>
+             <tr key={index}>
                 <td> {item['eventName']} 
                   <br></br>
                   <Link to={`/socialData/${item.eventName}`} activeClassName='active' data-for='test' data-tip='View Social Data'>
@@ -230,7 +230,8 @@ class OnSaleList extends Component {
               <td> 
                 <a className='btn btn-success' target='_blank' href={item.provider === 'Stublr' ? item.publicSaleUrl: item.ticketLink} style={{color:'white'}}> Buy tickets </a>
               </td>
-              <td><span className='badge badge-primary badge-thick'>recommended</span></td>
+              <td></td>
+              <td><span className='badge badge-primary badge-thick' onClick={() => this.toggleEdit(item)}>recommended</span></td>
           </tr>
         )
       }
@@ -260,7 +261,7 @@ class OnSaleList extends Component {
           })}
           <td> <a className='btn btn-success btn-sm' target='_blank' href={item.provider === 'Stublr' ? item.publicSaleUrl: item.ticketLink} style={{color:'white'}}> Buy tickets </a></td>
           <td></td>
-          <td> <i className='fa fa-thumbs-up' onClick={() => this.toggleEdit(index)}> </i></td>
+          <td> <i className='fa fa-thumbs-up' onClick={() => this.toggleEdit(item)}> </i></td>
 
         </tr>
       )

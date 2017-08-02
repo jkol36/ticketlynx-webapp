@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import firebase from 'firebase'
-import { userRef } from '../../config'
+import { userRef, ROOT_VIEW } from '../../config'
 
 
 export default class Login extends Component {
@@ -38,7 +38,7 @@ export default class Login extends Component {
           localStorage.setItem(k, s.val()[k])
         })
         localStorage.setItem('loggedIn', true)
-        this.props.history.push('reports')
+        this.props.history.push(ROOT_VIEW)
       }
     }))
     .catch(error => {

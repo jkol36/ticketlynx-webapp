@@ -28,3 +28,4 @@ export const pollstarRef = firebase.database().ref('pollstarData')
 export const userRef = firebase.database().ref('users')
 //create a firebase ref that serves as a signaling tool for the scrapers to run
 export const signalingRef = firebase.database().ref('signalingRef')
+export const ROOT_VIEW = 'onSaleList'
