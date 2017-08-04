@@ -63,7 +63,7 @@ class OnSaleList extends Component {
   fetchOnSaleList() {
     console.log('fetching items')
     let onSaleItems = []
-    onSaleRef.orderByChild('onSaleTime').equalTo(this.state.startTime).limitToFirst(100).once('value', s => {
+    onSaleRef.orderByChild('onSaleTime').equalTo(this.state.startTime).once('value', s => {
       if(s.exists()) {
         Object.keys(s.val()).map(k => {
           onSaleItems.push(Object.assign({},s.val()[k], {id:k}))
