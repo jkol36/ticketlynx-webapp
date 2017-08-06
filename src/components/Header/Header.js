@@ -64,7 +64,8 @@ class Header extends Component {
               </button>
 
               <DropdownMenu className="dropdown-menu-right">
-                <DropdownItem><i className="fa fa-lock"/> <Link to='/login' className='btn btn-success' onClick={this.logout}> Logout</Link></DropdownItem>
+                <DropdownItem> <i className='fa fa-user'/> <Link to='/admin' className='btn btn-success'> Admin Panel </Link> </DropdownItem>
+                <DropdownItem><i className="fa fa-lock"/> <Link to='/login' className='btn btn-primary' onClick={this.logout}> Logout</Link></DropdownItem>
               </DropdownMenu>
             </Dropdown>
           </li>

@@ -8,6 +8,7 @@ import Aside from '../../components/Aside/';
 import Footer from '../../components/Footer/';
 
 import Dashboard from '../../views/Dashboard/'
+import AdminPanel from '../../views/AdminPanel'
 import Reports from '../../views/Reports/'
 import Calculator from '../../views/Calculator'
 import OnSaleList from '../../views/OnSaleList'
@@ -59,6 +60,7 @@ class App extends Component {
             <div className="container-fluid">
               <Switch>
                 <Route path="/reports" name="reports" component={Reports}/>
+                <Route path='/admin' name='admin' component={AdminPanel}/>
                 <Route path="/components/buttons" name="Buttons" component={Buttons}/>
                 <Route path="/components/cards" name="Cards" component={Cards}/>
                 <Route path="/components/forms" name="Forms" component={Forms}/>
