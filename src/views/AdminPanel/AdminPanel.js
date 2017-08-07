@@ -196,7 +196,6 @@ buildOptions() {
                             value={this.state.value}
                             >
                           </Select>: []}
-                          <button className='form-control'> Done </button>
                     </div>
                   </div>
                   </div>
