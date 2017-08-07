@@ -107,7 +107,8 @@ buildOptions() {
       { label: 'Reports', value: 'reports' },
       { label: 'OnSaleList', value: 'onsalelist' },
       { label: 'Calculator', value: 'calculator' },
-      { label: 'CodeBank', value: 'codebank' }
+      { label: 'CodeBank', value: 'codebank' },
+      { label: 'Research', value: 'research' },
     ];
     console.log('got options', options)
     console.log('state', this.state)
