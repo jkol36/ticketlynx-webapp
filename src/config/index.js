@@ -1,6 +1,4 @@
 import firebase from 'firebase'
-export const LOGIN_ENDPOINT = BASE_URL+'user/login'
-export const SIGNUP_ENDPOINT = BASE_URL+'user/signup'
 
  var config = {
     apiKey: "AIzaSyD-5NICLbMCb3907DY0-gtqVhZ50LZjHAk",

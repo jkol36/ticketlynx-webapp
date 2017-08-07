@@ -1,6 +1,8 @@
 import moment from 'moment'
 import React, { Component } from 'react'
 import {Modal, ModalHeader, ModalBody} from 'reactstrap'
+import 'react-select/dist/react-select.css';
+import Select from 'react-select'
 import { userRef } from '../../config'
 
 
@@ -10,12 +12,15 @@ export default class AdminPanel extends Component {
     this.editUser = this.editUser.bind(this)
     this.onRemoveUser = this.onRemoveUser.bind(this)
     this.toggleModal = this.toggleModal.bind(this)
+    this.buildOptions = this.buildOptions.bind(this)
+    this.handleSelectChange = this.handleSelectChange.bind(this)
 
     this.state = {
       loading:true,
       users: null,
       selectedUser: null,
-      showModal: false
+      showModal: false,
+      value:[]
     }
   }
 
@@ -30,6 +35,7 @@ export default class AdminPanel extends Component {
     this.setState({
       isEditing: true,
       userBeingEdited: user,
+      value: Object.keys(user.allowableRoutes).map(k => ({label:k, value: k})),
       showModal:true
     })
   }
@@ -47,6 +53,10 @@ export default class AdminPanel extends Component {
       })
     })
   }
+
+buildOptions() {
+  let EnabledRoutes = Object.keys(this.state.userBeingEdited.allowableRoutes).map(k => ({label:k, value:k}))
+}
 
 
   onRemoveUser(uid) {
@@ -70,16 +80,38 @@ export default class AdminPanel extends Component {
     })
   }
 
-  getOptions() {
-    switch(this)
+  handleSelectChange(value) {
+    let allowableRoutesForUser = {}
+      value.split(',').forEach(route => {
+        allowableRoutesForUser[route] = true
+    })
+    userRef
+    .child(this.state.userBeingEdited.uid)
+    .child('allowableRoutes')
+    .set(allowableRoutesForUser)
+    .then(() => {
+      this.setState({
+        value
+      })
+    })
   }
+
+
 
   componentDidMount() {
     this.fetchUsers()
   }
 
   render() {
-    let tableHeaders 
+    const options = [
+      { label: 'Reports', value: 'reports' },
+      { label: 'OnSaleList', value: 'onsalelist' },
+      { label: 'Calculator', value: 'calculator' },
+      { label: 'CodeBank', value: 'codebank' }
+    ];
+    console.log('got options', options)
+    console.log('state', this.state)
+    let tableHeaders
     if(this.state.loading) {
       return (
         <div className='animated fadeIn'> 
@@ -89,9 +121,11 @@ export default class AdminPanel extends Component {
     }
     tableHeaders = Object.keys(this.state.users[0])
     let tableHeaderNodes = tableHeaders.map((text, index) => {
-      return (
-        <th key={index}> {text} </th>
-      )
+      if(text !== 'allowableRoutes') {
+        return (
+          <th> {text} </th>
+        ) 
+      }
     })
     let tableRows = this.state.users.map((user, index) => {
       let tableCellsForRow = Object.keys(user).map((k, index) => {
@@ -100,9 +134,12 @@ export default class AdminPanel extends Component {
             <td key={index}> {moment(user[k]).format('dddd, MMMM Do YYYY,')} </td>
           )
         }
-        return (
-          <td key={index}> {user[k]} </td>
-        )
+        else if(k !== 'allowableRoutes') {
+          return (
+            <td key={index}> {user[k]} </td>
+          )
+          
+        }
       })
       return (
         <tr key={index}> 
@@ -118,37 +155,52 @@ export default class AdminPanel extends Component {
         <div className='row'>
           <Modal isOpen={this.state.showModal}> 
             <ModalHeader toggle={this.toggleModal} className={this.props.className}>
-              {this.state.showModal ? <h4 className='modal-title'> You are editing {this.state.userBeingEdited.firstName} </h4>: ''}
+              {this.state.showModal ? `You are editing ${this.state.userBeingEdited.firstName}`: ''}
             </ModalHeader>
-            <ModalBody> 
-              {this.state.showModal ? <div className='card'> 
-                <div className='card-header'> 
-                  <strong> User form </strong>
+            <ModalBody>
+                {this.state.showModal ?
+                <div className='row'> 
+                <div className='col-md-6 col-lg-6 col-sm-6'> 
+                    <div className='card'>
+                      <div className='card-header'> 
+                        <strong> User form </strong>
+                      </div>
+                    <div className='card-block'>
+                      {Object.keys(this.state.userBeingEdited).map(k => {
+                        console.log('got key', k)
+                        if(k !== 'allowableRoutes') {
+                          return (
+                            <div className='form-group'> 
+                              <label for='testing'> {k} </label>
+                              <input readOnly className='form-control' value={this.state.userBeingEdited[k]}/>
+                            </div>
+                          )
+                        }
+                      })}
+                    </div>
+                  </div>
                 </div>
-                <div className='card-block'>
-                  {Object.keys(this.state.userBeingEdited).map(k => {
-                    if(k !== 'permissionLevel') {
-                      return (
-                        <div className='form-group'> 
-                          <label for='testing'> {k} </label>
-                          <input readOnly className='form-control' value={this.state.userBeingEdited[k]}/>
-                        </div>
-                      )
-                    }
-                    else if(k === 'permissionLevel') {
-                      return (
-                        <div className='form-group'> 
-                          <select onChange={() = console.log('change')}> 
-                            {getOptions(this.state.userBeingEdited[k])}
-                          </select>
-                        </div>
-                      )
-                    }
-                   
-                    
-                  })}
-                </div>
-              </div>: ''}
+                <div className='col-lg-6 col-md-6 col-sm-6'> 
+                  <div className='card'> 
+                    <div className='card-header'> 
+                      <strong> Edit permissions for {this.state.userBeingEdited.firstName+this.state.userBeingEdited.lastName}</strong>
+                    </div>
+                    <div className='card-block'> 
+                        {this.state.userBeingEdited ? 
+                          <Select
+                            label='testing'
+                            multi={true}
+                            simpleValue={true}
+                            options={options}
+                            onChange={this.handleSelectChange}
+                            value={this.state.value}
+                            >
+                          </Select>: []}
+                          <button className='form-control'> Done </button>
+                    </div>
+                  </div>
+                  </div>
+                </div>: ''}
             </ModalBody>
           </Modal>
           <div className='col-lg-12'> 

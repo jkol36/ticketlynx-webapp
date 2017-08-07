@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import firebase from 'firebase'
 import { Link, Switch, Route, Redirect } from 'react-router-dom'
 import Header from '../../components/Header/';
 import Sidebar from '../../components/Sidebar/';
 import Breadcrumb from '../../components/Breadcrumb/';
 import Aside from '../../components/Aside/';
 import Footer from '../../components/Footer/';
-
+import MultiSelect from '../../components/multiselect'
 import Dashboard from '../../views/Dashboard/'
 import AdminPanel from '../../views/AdminPanel'
 import Reports from '../../views/Reports/'
@@ -78,6 +77,7 @@ class App extends Component {
                 <Route path='/codeBank' name='codeBank' component={CodeBank} />
                 <Route path='/Research' name='Research' component={Research} />
                 <Route path='/Calculator' name='Calculator' component={Calculator} />
+                <Route path='/multiselect' name='multiselect' component={MultiSelect} />
                 <Redirect from="/" to="/reports"/>
               </Switch>
             </div>

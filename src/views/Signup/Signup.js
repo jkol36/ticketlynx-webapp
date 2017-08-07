@@ -1,7 +1,6 @@
 import firebase from 'firebase'
 import { userRef } from '../../config'
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
 
 
 export default class Signup extends Component {
