@@ -79,7 +79,8 @@ export default class Signup extends Component {
         email,
         createdAt: Date.now(),
         firstName,
-        lastName
+        lastName,
+        usertType:'user'
       }
       Object.keys(newUser).forEach(k => 
         localStorage.setItem(k, user[k])
