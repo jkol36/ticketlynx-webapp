@@ -1,5 +1,5 @@
 const routes = {
-  '/': 'onSaleList',
+  '/': 'home',
   '/reports': 'Reports',
   '/onsalelist': 'OnSaleList',
   '/codebank': 'codeBank',
