@@ -14,6 +14,7 @@ import OnSaleList from '../../views/OnSaleList'
 import SocialStats from '../../views/SocialStats'
 import Research from '../../views/Research'
 import CodeBank from '../../views/CodeBank'
+import AccessDenied from '../../views/404'
 import Charts from '../../views/Charts/'
 import Widgets from '../../views/Widgets/'
 import Buttons from '../../views/Components/Buttons/'
@@ -27,13 +28,38 @@ import Tabs from '../../views/Components/Tabs/'
 import FontAwesome from '../../views/Icons/FontAwesome/'
 import SimpleLineIcons from '../../views/Icons/SimpleLineIcons/'
 
-import { reportRef, onSaleRef, signalingRef } from '../../config'
+import { reportRef, onSaleRef, userRef, signalingRef } from '../../config'
 
 class App extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      redirected: false
+    }
+  }
 
   componentDidMount() {
-
     let loggedIn = localStorage.getItem('loggedIn')
+    let uid = localStorage.getItem('uid')
+    if(uid && this.state.redirected === false) {
+      if(this.props.location.pathname === '/admin' && localStorage.getItem('userType') === 'admin') {
+        this.setState({
+          redirected:true
+        })
+        return this.props.history.push('/admin')
+      }
+      userRef.child(uid).child('allowableRoutes').once('value', s => {
+        if(s.exists()) {
+          let allowableRoutes = Object.keys(s.val()).map(k => k)
+          if(allowableRoutes.indexOf(this.props.location.pathname.split('/')[1].toLowerCase()) === -1) {
+            this.setState({
+              redirected: true
+            })
+            return this.props.history.push('404')
+          }
+        }
+      })
+    }
     if(!loggedIn) {
       console.log(this.props.location.pathname)
       if(this.props.location.pathname === '/signup') {
@@ -46,6 +72,33 @@ class App extends Component {
 
     //signal scrapers to run
     //signalingRef.push({lastRun: Date.now()})
+  }
+
+  componentDidUpdate() {
+    console.log('app udating')
+    console.log(this.state.redirected)
+    let uid = localStorage.getItem('uid')
+    let {redirected} = this.state
+    if(uid && redirected === false) {
+      userRef.child(uid).child('allowableRoutes').once('value', s => {
+        if(s.exists()) {
+          let allowableRoutes = Object.keys(s.val()).map(k => k)
+          if(this.props.location.pathname === '/admin' && localStorage.getItem('userType') === 'admin') {
+            this.setState({
+              redirected:true
+            })
+            return this.props.history.push('/admin')
+          }
+          if(allowableRoutes.indexOf(this.props.location.pathname.split('/')[1].toLowerCase()) === -1) {
+            this.setState({
+              redirected: true
+            })
+            return this.props.history.push('404')
+          }
+        }
+      })
+    }
+
   }
 
   render() {
@@ -78,6 +131,7 @@ class App extends Component {
                 <Route path='/Research' name='Research' component={Research} />
                 <Route path='/Calculator' name='Calculator' component={Calculator} />
                 <Route path='/multiselect' name='multiselect' component={MultiSelect} />
+                <Route path='/404' name='404' component={AccessDenied} />
                 <Redirect from="/" to="/reports"/>
               </Switch>
             </div>

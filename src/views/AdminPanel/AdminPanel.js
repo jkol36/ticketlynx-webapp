@@ -14,12 +14,14 @@ export default class AdminPanel extends Component {
     this.toggleModal = this.toggleModal.bind(this)
     this.buildOptions = this.buildOptions.bind(this)
     this.handleSelectChange = this.handleSelectChange.bind(this)
+    this.handleUserTypeChange = this.handleUserTypeChange.bind(this)
 
     this.state = {
       loading:true,
       users: null,
       selectedUser: null,
       showModal: false,
+      userType: localStorage.getItem('userType'),
       value:[]
     }
   }
@@ -36,7 +38,8 @@ export default class AdminPanel extends Component {
       isEditing: true,
       userBeingEdited: user,
       value: Object.keys(user.allowableRoutes).map(k => ({label:k, value: k})),
-      showModal:true
+      showModal:true,
+      userType: user.userType
     })
   }
 
@@ -96,6 +99,19 @@ buildOptions() {
     })
   }
 
+  handleUserTypeChange(userType) {
+    console.log('user type changed', userType)
+    userRef
+    .child(this.state.userBeingEdited.uid)
+    .child('userType')
+    .set(userType)
+    .then(() => {
+      this.setState({
+        userType
+      })
+    })
+  }
+
 
 
   componentDidMount() {
@@ -108,10 +124,8 @@ buildOptions() {
       { label: 'OnSaleList', value: 'onsalelist' },
       { label: 'Calculator', value: 'calculator' },
       { label: 'CodeBank', value: 'codebank' },
-      { label: 'Research', value: 'research' },
+      { label: 'Research', value: 'research' }
     ];
-    console.log('got options', options)
-    console.log('state', this.state)
     let tableHeaders
     if(this.state.loading) {
       return (
@@ -170,6 +184,20 @@ buildOptions() {
                       {Object.keys(this.state.userBeingEdited).map(k => {
                         console.log('got key', k)
                         if(k !== 'allowableRoutes') {
+                          if(k === 'userType') {
+                            return (
+                              <div className='form-group'> 
+                                <label for='userType'> {k} </label>
+                                <Select
+                                  label='usertype'
+                                  simpleValue={true}
+                                  options={[{label:'admin', value:'admin'}, {label:'user', value:'user'}]}
+                                  onChange={this.handleUserTypeChange}
+                                  value={this.state.userType ? this.state.userType: this.state.userBeingEdited.userType}
+                                />
+                              </div>
+                            )
+                          }
                           return (
                             <div className='form-group'> 
                               <label for='testing'> {k} </label>

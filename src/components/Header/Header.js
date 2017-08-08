@@ -45,6 +45,7 @@ class Header extends Component {
   }
 
   render() {
+    let userType = localStorage.getItem('userType')
     return (
       <header className="app-header navbar">
         <button className="navbar-toggler mobile-sidebar-toggler d-lg-none" type="button" onClick={this.mobileSidebarToggle}>&#9776;</button>
@@ -64,7 +65,7 @@ class Header extends Component {
               </button>
 
               <DropdownMenu className="dropdown-menu-right">
-                <DropdownItem> <i className='fa fa-user'/> <Link to='/admin' className='btn btn-success'> Admin Panel </Link> </DropdownItem>
+                {userType === 'admin' ? <DropdownItem> <i className='fa fa-user'/> <Link to='/admin' className='btn btn-success'> Admin Panel </Link> </DropdownItem>: null}
                 <DropdownItem><i className="fa fa-lock"/> <Link to='/login' className='btn btn-primary' onClick={this.logout}> Logout</Link></DropdownItem>
               </DropdownMenu>
             </Dropdown>

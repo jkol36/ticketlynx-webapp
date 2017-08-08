@@ -22,6 +22,7 @@ export default class Research extends Component {
     this.handleSearchSubmit = this.handleSearchSubmit.bind(this)
   }
 
+
   handleSearchInput(e) {
     if(e.target.value.length === 0) {
       this.setState({
