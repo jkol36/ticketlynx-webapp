@@ -1,5 +1,6 @@
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import { onSaleRef } from '../../config'
+import Select from 'react-select'
+import { onSaleRef, userRef } from '../../config'
 import React, { Component } from 'react'
 import moment from 'moment'
 import ReactToolTip from 'react-tooltip'
@@ -23,7 +24,11 @@ class OnSaleList extends Component {
       itemBeingEdited: null,
       itemChanges: {},
       selectedItem: null,
-      editing:false
+      editing:false,
+      selectValue: null,
+      reccomendationItem: null,
+      users: null,
+      selectValueLookup: {}
     }
     this.fetchOnSaleList = this.fetchOnSaleList.bind(this)
     this.handleClick = this.handleClick.bind(this)
@@ -33,15 +38,20 @@ class OnSaleList extends Component {
     this.toggleEdit = this.toggleEdit.bind(this)
     this.handleStartTime = this.handleStartTime.bind(this)
     this.deleteRecommendation = this.deleteRecommendation.bind(this)
+    this.toggleReccomendationModel = this.toggleReccomendationModel.bind(this)
+    this.fetchUsers = this.fetchUsers.bind(this)
+    this.handleSelectChange = this.handleSelectChange.bind(this)
+    this.getSelectValue = this.getSelectValue.bind(this)
   }
   componentDidMount() {
     this.fetchOnSaleList()
+    this.fetchUsers()
     onSaleRef.on('child_changed', s => {
-      console.log('child changed', s.val())
       this.setState({
         onSaleItems: [...this.state.onSaleItems, Object.assign({}, {id: s.key}, s.val())]
       })
     })
+
   }
 
   handleClick() {
@@ -51,8 +61,17 @@ class OnSaleList extends Component {
     setTimeout(() => this.fetchOnSaleList(), 2000)
   }
 
+  handleSelectChange(value) {
+    onSaleRef.child(this.state.reccomendationItem.id).child('assignedTo').set(value, () => {
+      //this recomendation is assigned to X user
+      this.setState({
+        selectValue: value,
+        selectValueLookup: Object.assign({}, this.state.selectValueLookup, {[this.state.reccomendationItem.id]: value})
+      })
+    })
+  }
+
   handleStartTime(e) {
-    console.log('new start time', e.target.value)
     this.setState({
       startTime: e.target.value
     })
@@ -62,7 +81,6 @@ class OnSaleList extends Component {
     onSaleRef.off()
   }
   fetchOnSaleList() {
-    console.log('fetching items')
     let onSaleItems = []
     onSaleRef.orderByChild('onSaleTime').equalTo(this.state.startTime).once('value', s => {
       if(s.exists()) {
@@ -75,6 +93,17 @@ class OnSaleList extends Component {
         loading:false,
         onSaleItems
       })
+    })
+  }
+
+  fetchUsers() {
+    userRef.once('value', s => {
+      if(s.exists()) {
+        let users = Object.keys(s.val()).map(k => s.val()[k]).filter(user => user.uid !== localStorage.getItem('uid'))
+        this.setState({
+          users
+        })
+      }
     })
   }
 
@@ -97,10 +126,11 @@ class OnSaleList extends Component {
   }
 
   toggle(item) {
-    console.log(`toggle called with`, item)
     this.setState({
       showDetailModal: !this.state.showDetailModal,
-      selectedItem: item
+      selectedItem: item,
+      reccomendationItem: {},
+      selectValue: null
     })
 
   }
@@ -111,7 +141,6 @@ class OnSaleList extends Component {
       this.state.itemBeingEdited &&
       Object.keys(this.state.itemChanges).length > 0
       ) {
-      console.log('saving changes for item', item.id)
       let itemId = this.state.itemBeingEdited.id
       onSaleRef.child(this.state.itemBeingEdited.id).update(Object.assign(this.state.itemChanges[this.state.itemBeingEdited.id], {reccommended:true, reccommendedBy: localStorage.getItem('firstName')}), () => {
         this.setState({
@@ -139,15 +168,31 @@ class OnSaleList extends Component {
   }
 
   deleteRecommendation(item) {
-    console.log(item)
     onSaleRef.child(item.id).child('reccommended').set(false, () => {
       this.setState({
         recommendedBuys: Object.assign({}, this.state.recommendedBuys, delete this.state.recommendedBuys[item.id])
       })
     })
-  } 
+  }
+
+  toggleReccomendationModel(item) {
+    this.setState({
+      assigningReccomendation: true,
+      showDetailModal: true,
+      reccomendationItem: item
+    })
+  }
+  getSelectValue() {
+
+    let user = this.state.users.find(user => user.uid === this.state.selectValueLookup[this.state.reccomendationItem.id])
+    this.setState({
+      selectValue: user ? user.firstName: this.state.reccomendationItem.assignedTo
+    })
+    return
+  }
 
   render() {
+    
     const onSaleTableStyle = {
       'tableLayout':'fixed'
     }
@@ -173,6 +218,17 @@ class OnSaleList extends Component {
           </form>
         )
       }
+      else if(this.state.assigningReccomendation === true) {
+        return (
+          <Select
+            label='Select User'
+            simpleValue={true}
+            options={this.state.users.map(user => ({label:user.firstName, value:user.uid}))}
+            onChange={this.handleSelectChange}
+            value={this.state.reccomendationItem.assignedTo ? this.state.reccomendationItem.assignedTo: this.state.selectValue} 
+          ></Select>
+        )
+      }
       else if(this.state.selectedItem) {
         return (
           <div>
@@ -187,6 +243,11 @@ class OnSaleList extends Component {
       if(this.state.editing === true) {
         return (
           <div className='modal-title'> <i className='fa fa-thumbs-up'> </i> Recommend this item</div>
+        )
+      }
+      else if(this.state.assigningReccomendation === true) {
+        return (
+          <div> <i className='fa fa-question-circle'></i> Assign Reccomendation to a user</div>
         )
       }
       else {
@@ -221,6 +282,10 @@ class OnSaleList extends Component {
                     <ReactToolTip id='test'/>
                     <i className='fa fa-info-circle' style={{cursor:'pointer'}}/> 
                   </Link>
+                  <div data-for='reccomendationAssign' data-tip='Assign Reccomendation'>
+                    <ReactToolTip id='reccomendationAssign'/>
+                    <i className='fa fa-tags' onClick={() => this.toggleReccomendationModel(item)} style={{cursor:'pointer'}}/> 
+                  </div>
                 </td> 
               {Object.keys(item).map(k => {
                 if(k !== 'My Notes' && 
@@ -232,7 +297,8 @@ class OnSaleList extends Component {
                   k !== 'reccommended' &&
                   k !== 'reccommendedBy' && 
                   k !== 'numTicketsToBuy' && 
-                  k !== 'additionalComments'
+                  k !== 'additionalComments' &&
+                  k !== 'assignedTo'
                   ) {
                   return (<td key={k}> {item[k]} </td>)
                 }
@@ -253,6 +319,10 @@ class OnSaleList extends Component {
                 <ReactToolTip id='test'/>
                 <i className='fa fa-info-circle' style={{cursor:'pointer'}}/> 
               </Link>
+              <div data-for='reccomendationAssign' data-tip='Assign Reccomendation'>
+                <ReactToolTip id='reccomendationAssign'/>
+                <i className='fa fa-tags' onClick={() => this.toggleReccomendationModel(item)} style={{cursor:'pointer'}}/> 
+              </div>
             </td> 
           {Object.keys(item).map(k => {
             if(k !== 'My Notes' && 
@@ -264,7 +334,8 @@ class OnSaleList extends Component {
                   k !== 'reccommended' &&
                   k !== 'reccommendedBy' && 
                   k !== 'numTicketsToBuy' && 
-                  k !== 'additionalComments'
+                  k !== 'additionalComments' &&
+                  k !== 'assignedTo'
                   ) {
               return (<td key={k}> {item[k]} </td>)
             }
