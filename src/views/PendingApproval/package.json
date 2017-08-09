@@ -1,0 +1,6 @@
+{
+  "name": "PendingApproval",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./PendingApproval.js"
+}

@@ -8,8 +8,10 @@ import Footer from '../../components/Footer/';
 import MultiSelect from '../../components/multiselect'
 import Dashboard from '../../views/Dashboard/'
 import AdminPanel from '../../views/AdminPanel'
+import PendingApproval from '../../views/PendingApproval'
 import Reports from '../../views/Reports/'
 import Calculator from '../../views/Calculator'
+import AccountDisabled from '../../views/AccountDisabled'
 import OnSaleList from '../../views/OnSaleList'
 import SocialStats from '../../views/SocialStats'
 import Research from '../../views/Research'
@@ -41,24 +43,39 @@ class App extends Component {
   componentDidMount() {
     let loggedIn = localStorage.getItem('loggedIn')
     let uid = localStorage.getItem('uid')
+    let accountStatus = localStorage.getItem('accountStatus')
     if(uid && this.state.redirected === false) {
+      if(accountStatus === 'disabled') {
+        this.setState({
+          redirected: true
+        })
+        return this.props.history.push('AccountDisabled')
+      }
+      if(accountStatus === 'pending') {
+        this.setState({
+          redirected: true
+        })
+        return this.props.history.push('PendingApproval')
+      }
       if(this.props.location.pathname === '/admin' && localStorage.getItem('userType') === 'admin') {
         this.setState({
           redirected:true
         })
         return this.props.history.push('/admin')
       }
-      userRef.child(uid).child('allowableRoutes').once('value', s => {
-        if(s.exists()) {
-          let allowableRoutes = Object.keys(s.val()).map(k => k)
-          if(allowableRoutes.indexOf(this.props.location.pathname.split('/')[1].toLowerCase()) === -1) {
-            this.setState({
-              redirected: true
-            })
-            return this.props.history.push('404')
+      else {
+        userRef.child(uid).child('allowableRoutes').once('value', s => {
+          if(s.exists()) {
+            let allowableRoutes = Object.keys(s.val()).map(k => k)
+            if(allowableRoutes.indexOf(this.props.location.pathname.split('/')[1].toLowerCase()) === -1) {
+              this.setState({
+                redirected: true
+              })
+              return this.props.history.push('404')
+            }
           }
-        }
-      })
+        })
+      }
     }
     if(!loggedIn) {
       console.log(this.props.location.pathname)
@@ -77,26 +94,42 @@ class App extends Component {
   componentDidUpdate() {
     console.log('app udating')
     console.log(this.state.redirected)
+    console.log(localStorage)
     let uid = localStorage.getItem('uid')
+    let accountStatus = localStorage.getItem('accountStatus')
     let {redirected} = this.state
     if(uid && redirected === false) {
-      userRef.child(uid).child('allowableRoutes').once('value', s => {
-        if(s.exists()) {
-          let allowableRoutes = Object.keys(s.val()).map(k => k)
-          if(this.props.location.pathname === '/admin' && localStorage.getItem('userType') === 'admin') {
-            this.setState({
-              redirected:true
-            })
-            return this.props.history.push('/admin')
+      if(accountStatus === 'disabled') {
+        this.setState({
+          redirected: true
+        })
+        return this.props.history.push('AccountDisabled')
+      }
+      if(accountStatus === 'pending') {
+        this.setState({
+          redirected: true
+        })
+        return this.props.history.push('PendingApproval')
+      }
+      else {
+        userRef.child(uid).child('allowableRoutes').once('value', s => {
+          if(s.exists()) {
+            let allowableRoutes = Object.keys(s.val()).map(k => k)
+            if(this.props.location.pathname === '/admin' && localStorage.getItem('userType') === 'admin') {
+              this.setState({
+                redirected:true
+              })
+              return this.props.history.push('/admin')
+            }
+            if(allowableRoutes.indexOf(this.props.location.pathname.split('/')[1].toLowerCase()) === -1) {
+              this.setState({
+                redirected: true
+              })
+              return this.props.history.push('404')
+            }
           }
-          if(allowableRoutes.indexOf(this.props.location.pathname.split('/')[1].toLowerCase()) === -1) {
-            this.setState({
-              redirected: true
-            })
-            return this.props.history.push('404')
-          }
-        }
-      })
+        })
+      }
     }
 
   }
@@ -118,6 +151,8 @@ class App extends Component {
                 <Route path="/components/forms" name="Forms" component={Forms}/>
                 <Route path="/components/modals" name="Modals" component={Modals}/>
                 <Route path="/components/social-buttons" name="Social Buttons" component={SocialButtons}/>
+                <Route path='/pendingapproval' name='PendingApproval' component={PendingApproval} />
+                <Route path='/accountDisabled' name='AccountDisabled' component={AccountDisabled} />
                 <Route path="/components/switches" name="Swithces" component={Switches}/>
                 <Route path="/components/tables" name="Tables" component={Tables}/>
                 <Route path="/components/tabs" name="Tabs" component={Tabs}/>
