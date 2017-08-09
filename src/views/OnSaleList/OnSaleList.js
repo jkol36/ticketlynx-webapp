@@ -32,6 +32,7 @@ class OnSaleList extends Component {
     this.toggle = this.toggle.bind(this)
     this.toggleEdit = this.toggleEdit.bind(this)
     this.handleStartTime = this.handleStartTime.bind(this)
+    this.deleteRecommendation = this.deleteRecommendation.bind(this)
   }
   componentDidMount() {
     this.fetchOnSaleList()
@@ -135,6 +136,15 @@ class OnSaleList extends Component {
       loading:true
     })
     setTimeout(() => this.fetchOnSaleList(), 2000)
+  }
+
+  deleteRecommendation(item) {
+    console.log(item)
+    onSaleRef.child(item.id).child('reccommended').set(false, () => {
+      this.setState({
+        recommendedBuys: Object.assign({}, this.state.recommendedBuys, delete this.state.recommendedBuys[item.id])
+      })
+    })
   } 
 
   render() {
@@ -202,7 +212,7 @@ class OnSaleList extends Component {
     .sort((a,b) => moment(a.onSaleDate) - moment(b.onSaleDate))
     .sort((a, b) => +a.onSaleTime.split(' ')[0].split(':')[0] - +b.onSaleTime.split(' ')[0].split(':')[0])
     .map((item, index) => {
-      if(this.state.recommendedBuys[item.id] !== undefined || item.reccommended !== undefined) {
+      if(this.state.recommendedBuys[item.id] !== undefined || item.reccommended  === true) {
         return (
              <tr key={index}>
                 <td> {item['eventName']} 
@@ -231,7 +241,7 @@ class OnSaleList extends Component {
                 <a className='btn btn-success' target='_blank' href={item.provider === 'Stublr' ? item.publicSaleUrl: item.ticketLink} style={{color:'white'}}> Buy tickets </a>
               </td>
               <td></td>
-              <td><span className='badge badge-primary badge-thick' onClick={() => this.toggleEdit(item)}>recommended</span></td>
+              <td><span className='badge badge-primary badge-thick' onClick={() => this.toggleEdit(item)}>recommended {localStorage.getItem('userType') === 'admin' ? <i style={{cursor:'pointer'}} className='fa fa-remove fa-danger' onClick={() => this.deleteRecommendation(item)}></i>: ''}</span> </td>
           </tr>
         )
       }
