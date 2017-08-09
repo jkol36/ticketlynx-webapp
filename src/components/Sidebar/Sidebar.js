@@ -21,14 +21,17 @@ class Sidebar extends Component {
 
   componentDidMount() {
     let uid = localStorage.getItem('uid')
-    if(uid) {
+    let accountStatus = localStorage.getItem('accountStatus')
+    if(uid && accountStatus === 'active') {
       userRef.child(uid).child('allowableRoutes').once('value', s => {
         if(s.exists()) {
           let allowableRoutes = Object.keys(s.val()).map(k => k)
           this.setState({
             allowableRoutes
           })
-          
+        }
+        else {
+          console.log('allowableRoutes for user does not exist')
         }
       })
     }
@@ -60,11 +63,13 @@ class Sidebar extends Component {
         <nav className="sidebar-nav">
           <ul className="nav">
             {this.state.allowableRoutes.map(route => {
-              return (
-                <li className='nav-item'> 
-                  <NavLink to={`/${route}`} className='nav-link' activeClassName='active'> <i className={buildClassName(route)}/> {route} </NavLink>
-                </li>
-              )
+              if(route !== 'accountStatus') {
+                return (
+                  <li className='nav-item'> 
+                    <NavLink to={`/${route}`} className='nav-link' activeClassName='active'> <i className={buildClassName(route)}/> {route} </NavLink>
+                  </li>
+                )
+              }
             })}
             
           </ul>

@@ -38,12 +38,22 @@ export default class Login extends Component {
           localStorage.setItem(k, s.val()[k])
         })
         localStorage.setItem('loggedIn', true)
-        this.props.history.push(ROOT_VIEW)
+        if(s.val().pendingApproval) {
+          return this.props.history.push('PendingApproval')
+        }
+        else if(s.val().accountStatus === 'disabled') {
+          return this.props.history.push('AccountDisabled')
+        }
+        else {
+          return this.props.history.push(ROOT_VIEW)
+          
+        }
       }
     }))
     .catch(error => {
+      console.log('got error', error)
       this.setState({
-        error
+        error: error.message
       })
     })
 

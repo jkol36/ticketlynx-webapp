@@ -80,21 +80,30 @@ export default class Signup extends Component {
         createdAt: Date.now(),
         firstName,
         lastName,
-        usertType:'user'
+        userType:'user',
+        pendingApproval:true,
+        allowableRoutes: {
+          calculator:true,
+          codebank: true,
+          onsalelist: true,
+          reports: true,
+          research: true,
+        },
+        accountStatus: 'pending'
       }
       Object.keys(newUser).forEach(k => 
-        localStorage.setItem(k, user[k])
+        localStorage.setItem(k, newUser[k])
       )
       localStorage.setItem('loggedIn', true)
       return userRef.child(uid).set(newUser)
 
     })
     .then(() => {
-      return this.props.history.push('/reports')
+      return this.props.history.push('PendingApproval')
     })
     .catch(error => {
       this.setState({
-        error
+        error: error.message
       })
     })
 

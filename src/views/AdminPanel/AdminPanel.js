@@ -149,7 +149,7 @@ buildOptions() {
             <td key={index}> {moment(user[k]).format('dddd, MMMM Do YYYY,')} </td>
           )
         }
-        else if(k !== 'allowableRoutes') {
+        else if(k !== 'allowableRoutes' && k !== 'pendingApproval') {
           return (
             <td key={index}> {user[k]} </td>
           )
@@ -183,7 +183,7 @@ buildOptions() {
                     <div className='card-block'>
                       {Object.keys(this.state.userBeingEdited).map(k => {
                         console.log('got key', k)
-                        if(k !== 'allowableRoutes') {
+                        if(k !== 'allowableRoutes' && k !== 'pendingApproval') {
                           if(k === 'userType') {
                             return (
                               <div className='form-group'> 
