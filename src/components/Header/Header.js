@@ -111,7 +111,7 @@ class Header extends Component {
                 </div>
                 <div className='card'>
                   <div className='card-block'>
-                    {this.state.usersPendingApproval.length > 2 ?<table className='table table-striped table-condensed table-sm'> 
+                    {this.state.usersPendingApproval.length > 0 ?<table className='table table-striped table-condensed table-sm'> 
                       <thead> 
                         <tr> 
                           <th> User </th>
