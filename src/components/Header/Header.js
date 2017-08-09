@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Dropdown, DropdownMenu, DropdownItem } from 'reactstrap';
 import { Link } from 'react-router-dom'
-import { userRef } from '../../config'
+import { userRef, onSaleRef } from '../../config'
 
 class Header extends Component {
 
@@ -21,6 +21,13 @@ class Header extends Component {
   }
 
   componentDidMount() {
+    onSaleRef.orderByChild('assignedTo').equalTo(localStorage.getItem('uid')).once('value', snap => {
+      if(snap.exists()) {
+        this.setState({
+          notifications: Object.keys(snap.val()).map(k => snap.val()[k])
+        })
+      }
+    })
     userRef.orderByChild('pendingApproval').equalTo(true).once('value', s => {
       if(s.exists()) {
         this.setState({
