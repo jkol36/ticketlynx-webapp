@@ -140,7 +140,6 @@ class Header extends Component {
           <li className="nav-item">
             <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
               <button style={{'margin-right': '27px'}} onClick={this.toggle} className="nav-link dropdown-toggle" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded={this.state.dropdownOpen}>
-                <img src={'img/avatars/6.jpg'} className="img-avatar" alt="admin@bootstrapmaster.com"/>
                 <span className="d-md-down-none">{`${localStorage.getItem('firstName')}  ${localStorage.getItem('lastName')}`}</span>
               </button>
 
