@@ -64,6 +64,15 @@ export default class Login extends Component {
     <div className='container'> 
       <div className='row offset-3'> 
         <div className='col-md-8 m-x-auto pull-xs-none vamiddle' style={{marginTop:'61px'}}> 
+          <div className='row'>
+            <div className='col-md-12 m-x-auto vamiddle'> 
+              <div className='card p-a-2'> 
+                <div className='card-block'> 
+                  <img width='200' style={{marginLeft:150}} className='text-center' src='../img/logo.png'/>
+                </div>
+              </div>
+            </div>
+          </div>
           <div className='card-group'> 
             <div className='card p-a-2'> 
               <div className='card-block'> 
