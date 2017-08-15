@@ -138,7 +138,7 @@ export default class Calculator extends Component {
             <div className='col-md-6 col-sm-6 col-xs-6'> 
             <div className='card card-inverse card-primary'> 
               <div className='card-block'>
-                <h4> liklihood of sell out {Math.floor(this.state.percent)}% </h4> 
+                <h4> likelihood of sell out {Math.floor(this.state.percent)}% </h4> 
                 <Line percent={this.state.percent} strokeWidth='4' strokeColor='#D3D3D3' />
               </div>
             </div>
