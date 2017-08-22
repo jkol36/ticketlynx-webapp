@@ -187,6 +187,9 @@ export default class Research extends Component {
               queryResult: Object.assign({}, this.state.queryResult, {reportData: s.val()})
             })
           }
+          else {
+            console.log('cant find data for event')
+          }
         })
       })
 

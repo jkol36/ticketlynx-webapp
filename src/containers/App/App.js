@@ -30,7 +30,7 @@ import Tabs from '../../views/Components/Tabs/'
 import FontAwesome from '../../views/Icons/FontAwesome/'
 import SimpleLineIcons from '../../views/Icons/SimpleLineIcons/'
 
-import { reportRef, onSaleRef, userRef, signalingRef } from '../../config'
+import { reportRef, onSaleRef, ROOT_VIEW, userRef, signalingRef } from '../../config'
 
 class App extends Component {
   constructor(props) {
@@ -167,7 +167,7 @@ class App extends Component {
                 <Route path='/Calculator' name='Calculator' component={Calculator} />
                 <Route path='/multiselect' name='multiselect' component={MultiSelect} />
                 <Route path='/404' name='404' component={AccessDenied} />
-                <Redirect from="/" to="/reports"/>
+                <Redirect from="/" to="/onSaleList"/>
               </Switch>
             </div>
           </main>
