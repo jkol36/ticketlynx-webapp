@@ -6,7 +6,7 @@ import {
   scoresRef,
   topCitiesRef,
   topCountriesRef,
-  pollstarRef,
+  reportRef,
   albumRef } from '../../config'
 
 
@@ -21,120 +21,160 @@ export default class SocialStats extends Component {
 
   componentDidMount() {
     let eventName = this.props.history.location.pathname.split('/socialData/')[1]
-    this.setState({
-      query: eventName
+    queryRef.push(eventName, () => {
+      this.setState({
+        loading:true,
+        query:eventName
+      })
     })
-    albumRef.on('child_added', s => {
-      console.log('yooo', s.key, s.val())
-      if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
-          loading:false,
-          queryResult: Object.keys(s.val()).map(k => s.val()[k])[0]
-        })
-      }
-    })
-    albumRef.on('child_changed', s => {
-      console.log('yooo', s.key, s.val())
-      if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
-          loading:false,
-          queryResult: Object.keys(s.val()).map(k => s.val()[k])[0]
-        })
-      }
-    })
+    .then(() => {
+      let url = this.state.query.split(' ').join('-')
+      let artstRef = artistRef.child(url)
+      let albmRef = albumRef.child(url)
+      let scresRef = scoresRef.child(url)
+      let tpCitiesRef = topCitiesRef.child(url)
+      let tpCountriesRef = topCountriesRef.child(url)
 
-    artistRef.on('child_changed', s => {
-      console.log('artist ref', s.key, s.val())
-      if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
-          loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
-      }
-    })
-    artistRef.on('child_added', s => {
-      console.log('artist ref', s.key, s.val())
-      if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
-          loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
-      }
-    })
-    scoresRef.on('child_changed', s => {
-      console.log('scores ref changed', s.key, s.val())
-      if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
-          loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
-      }
-    })
-    scoresRef.on('child_added', s => {
-      console.log('scores ref added', s.key, s.val())
-      if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
-          loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
-      }
-    })
-    topCitiesRef.on('child_added', s => {
-      console.log('top cities added', s.key, s.val())
-      if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
-          loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, {topCities:s.val()})
-        })
-      }
-    })
-    topCitiesRef.on('child_changed', s => {
-      console.log('top cities changed', s.key, s.val())
-      if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
-          loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, {topCities:s.val()})
-        })
-      }
-    })
-    topCountriesRef.on('child_added', s => {
-      console.log('top countries added', s.key, s.val())
-      if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
-          loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, {topCountries:s.val()})
-        })
-      }
-    })
-    topCountriesRef.on('child_changed', s => {
-      console.log('top countries changed', s.key, s.val())
-      if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
-          loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
-      }
-    })
-    pollstarRef.on('child_changed', s => {
-      console.log('poll star data changed', s.key, s.val())
-      if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
-          loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
-      }
-    })
-    pollstarRef.on('child_added', s => {
-      console.log('poll star data added', s.key, s.val())
-      if(s.key.split('-').join('').toLowerCase() === this.state.query.split(' ').join('').toLowerCase()) {
-        this.setState({
-          loading:false,
-          queryResult: Object.assign({}, this.state.queryResult, s.val())
-        })
-      }
-    })
-    queryRef.push(eventName)
+      albmRef
+      .once('value', s => {
+        let changes = {}
+        if(s.exists()) {
+          Object.keys(s.val()).map(k => {changes[k] = s.val()[k]})
+          this.setState({
+            loading:false,
+            queryResult: Object.assign({}, this.state.queryResult, changes)
+          })
+        }
+      })
 
+      albmRef
+      .on('child_changed', s => {
+        console.log('albmREf changed', s.val())
+        this.setState({
+          loading:false,
+          queryResult: Object.assign({}, this.state.queryResult, {[s.key]:s.val()})
+        })
+      })
+      albmRef
+      .on('child_added', s => {
+        console.log('album ref added', s.val())
+        this.setState({
+          loading:false,
+          queryResult: Object.assign({}, this.state.queryResult, s.val())
+        })
+      })
+
+      scresRef.once('value', s => {
+        let changes = {}
+        if(s.exists()) {
+          Object.keys(s.val()).map(k => {changes[k] = s.val()[k]})
+          this.setState({
+            loading:false,
+            queryResult: Object.assign({}, this.state.queryResult, changes)
+          })
+        }
+      })
+      scresRef.on('child_changed', s => {
+        this.setState({
+          loading:false,
+          queryResult: Object.assign({}, this.state.queryResult, s.val())
+        })
+      })
+
+      scresRef.on('child_added', s => {
+        this.setState({
+          loading:false,
+          queryResult: Object.assign({}, this.state.queryResult, s.val())
+        })
+      })
+
+      tpCitiesRef.once('value', s => {
+        if(s.exists()) {
+          this.setState({
+            loading: false,
+            queryResult: Object.assign({}, this.state.queryResult, {topCities: s.val()})
+          })
+        }
+      })
+
+      tpCitiesRef.on('child_changed', s => {
+        this.setState({
+          loading:false,
+          queryResult: Object.assign({}, this.state.queryResult, s.val())
+        })
+      })
+
+      tpCitiesRef.on('child_added', s => {
+        this.setState({
+          loading:false,
+          queryResult: Object.assign({}, this.state.queryResult, s.val())
+        })
+      })
+
+      tpCountriesRef.once('value', s => {
+        if(s.exists()) {
+          this.setState({
+            loading: false,
+            queryResult: Object.assign({}, this.state.queryResult, {topCountries: s.val()})
+          })
+        }
+      })
+
+      tpCountriesRef.on('child_changed', s => {
+        this.setState({
+          loading:false,
+          queryResult: Object.assign({}, this.state.queryResult, s.val())
+        })
+      })
+      tpCountriesRef.on('child_added', s => {
+        this.setState({
+          loading:false,
+          queryResult: Object.assign({}, this.state.queryResult, s.val())
+        })
+      })
+
+      artstRef
+      .once('value', s => {
+        console.log('yooo')
+        let changes = {}
+        if(s.exists()) {
+          Object.keys(s.val()).map(k => {changes[k] = s.val()[k]})
+          this.setState({
+            loading:false,
+            queryResult: Object.assign({}, this.state.queryResult, changes)
+          })
+        }
+      })
+      artstRef
+      .on('child_changed', s => {
+        console.log('something changed')
+        this.setState({
+          loading: false,
+          queryResult: Object.assign({}, this.state.queryResult, s.val())
+        })
+      })
+      artstRef
+      .on('child_added', s => {
+        console.log('something changed', s.val())
+        this.setState({
+          loading: false,
+          queryResult: Object.assign({}, this.state.queryResult, {[s.key]:s.val()})
+        })
+      })
+
+      reportRef
+        .child('2017')
+        .orderByChild('Event Name')
+        .equalTo(this.state.query)
+        .once('value', s => {
+          if(s.exists()) {
+            this.setState({
+              loading:false,
+              queryResult: Object.assign({}, this.state.queryResult, {reportData: s.val()})
+            })
+          }
+        })
+      })
   }
 
   componentWillUnmount() {
@@ -144,14 +184,27 @@ export default class SocialStats extends Component {
     scoresRef.off()
     artistRef.off()
     albumRef.off()
-    pollstarRef.off()
+    reportRef.off()
   }
 
   render() {
+    let avgProfit = 0
+    let totalTicketsBought = 0
+    let totalProfit = 0
+    if(this.state.queryResult) {
+      if(this.state.queryResult.reportData) {
+        totalTicketsBought = Object.keys(this.state.queryResult.reportData).length
+        Object.keys(this.state.queryResult.reportData).forEach(ticketKey => {
+          totalProfit += +this.state.queryResult.reportData[ticketKey].Profit
+        })
+        console.log(`total profit ${totalProfit}`)
+        console.log(`average profit per ticket ${totalProfit/totalTicketsBought}`)
+        avgProfit = totalProfit/totalTicketsBought
+      }
+    }
     let resultRow = {
       marginTop:'30px'
     }
-    console.log(this.state)
     if(this.state.loading) {
       return (
         <div className='animated fadeIn'> 
@@ -171,11 +224,11 @@ export default class SocialStats extends Component {
         </div>
         <div style={resultRow} className='row'>
           <div className='col-lg-2'> 
-            <div className='card'> 
+            <div style={{height:'245px'}}className='card'> 
               <div className='card-header white card-primary px-3 py-3 clearfix font-weight-bold font-sm btn-block'> 
                 Latest Album
               </div>
-              <div className='card-block p-3 clearfix'> 
+              <div  className='card-block p-3 clearfix'> 
                 <img className='float-left p-3' height='110' src={this.state.queryResult ? this.state.queryResult.albumImage: ''}/>
                 <div className='h5 text-info mb-0 mt-2'> 
                   {this.state.queryResult ? this.state.queryResult.name: ''}
@@ -186,6 +239,19 @@ export default class SocialStats extends Component {
               </div>
             </div>
           </div>
+          <div className='col-lg-2'> 
+            <div style={{height:'245px'}} className='card'> 
+              <div className='card-header white card-primary px-3 py-3 clearfix font-weight-bold font-sm btn-block'> 
+                HomeTown
+              </div>
+              <div className='card-block p-3 clearfix'> 
+                <div className='h5 text-info mb-0 mt-2'> 
+                  {this.state.queryResult ? this.state.queryResult.homeTown: ''}
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className='col-lg-2'> 
             <div className='social-box twitter fixed-height'>
               <i className='fa fa-twitter'/> 
@@ -221,38 +287,26 @@ export default class SocialStats extends Component {
                   <i className='fa fa-money'></i>
                 </div>
                 <div className='h4 mb-0'>
-                  {this.state.queryResult.avgGross ? this.state.queryResult.avgGross: ''}
+                  ${Math.floor(totalProfit)}
                 </div>
-                <small className='text-muted text-uppercase font-weight-bold'> Average Gross </small>
+                <small className='text-muted text-uppercase font-weight-bold'> Total Profit </small>
               </div>
             </div>
           </div>
           <div className='col-lg-2'> 
             <div className='card card-inverse card-danger fixed-height'> 
               <div className='card-block fixed-height'> 
-                <div className='h1 text-muted text-right mb-2'> 
+                <div className='h1 text-muted text-right mb-3'> 
                   <i className='fa fa-money'></i>
                 </div>
                 <div className='h4 mb-0'>
-                  {this.state.queryResult.avgTicketsSold ? this.state.queryResult.avgTicketsSold: ''}
+                  ${Math.floor(avgProfit)}
                 </div>
-                <small className='text-muted text-uppercase font-weight-bold'> Average Tickets Sold </small>
+                <small className='text-muted text-uppercase font-weight-bold'> Average Profit Per Ticket </small>
               </div>
             </div>
           </div>
-          <div className='col-lg-2'> 
-            <div className='card card-inverse card-warning fixed-height'> 
-              <div className='card-block fixed-height'> 
-                <div className='h1 text-muted text-right mb-2'> 
-                  <i className='fa fa-line-chart'></i>
-                </div>
-                <div className='h4 mb-0'>
-                  {this.state.queryResult.headLineShows ? this.state.queryResult.headLineShows: ''}
-                </div>
-                <small className='text-muted text-uppercase font-weight-bold'> Headline Shows </small>
-              </div>
-            </div>
-          </div>
+          
           <div className='col-lg-6'> 
             <div className='card'>
               <div className='card-header'><h4 className='mb-2'>Top Countries </h4></div>
